@@ -52,7 +52,7 @@ public class PersonaService {
         return (List<Persona>)Arrays.asList(da.listAll().toArray());
     }
 
-    public List<String> listRolArtista() {
+    public List<String> listRolPersona() {
         List<String> lista = new ArrayList<>();
         for(RolEnum r: RolEnum.values()) {
             lista.add(r.toString());

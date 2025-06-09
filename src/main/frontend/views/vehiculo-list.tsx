@@ -64,7 +64,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
 
   let listaPersona = useSignal<String[]>([]);
   useEffect(() => {
-    PersonaService.listaAlbumPersona().then(data =>
+    VehiculoService.listaAlbumPersona().then(data =>
       //console.log(data)
       listaPersona.value = data
     );
@@ -259,7 +259,7 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
 
 
 //LISTA DE ARTISTAS
-export default function PersonaView() {
+export default function VehiculoView() {
 
 //   const dataProvider = useDataProvider<Cancion>({
 //     list: () => CancionService.listCancion(),
@@ -267,7 +267,7 @@ export default function PersonaView() {
 
 const [items, setItems] = useState([]);
   useEffect(() => {
-    PersonaService.listaPersona().then(function (data) {
+    VehiculoService.listVehiculo().then(function (data) {
       //items.values = data;
       setItems(data);
     });
@@ -281,7 +281,7 @@ const order = (event, columnId) => {
     console.log(`Sort direction changed for column ${columnId} to ${direction}`);
 
     var dir = (direction == 'asc') ? 1 : 2;
-    PersonaService.order(columnId, dir).then(function (data) {
+    VehiculoService.order(columnId, dir).then(function (data) {
       setItems(data);
     });
   }
@@ -291,14 +291,14 @@ const order = (event, columnId) => {
 
     return (
       <span>
-        <Persona arguments={item} onPersonaUpdated={items.refresh}>
+        <VehiculoEntryFormUpdate arguments={item} onVehiculoUpdated={items.refresh}>
 
-          </PersonaEntryFormUpdate>
+          </VehiculoEntryFormUpdate>
       </span>
     );
   }
 
-  function indexIndex({model}:{model:GridItemModel<Persona>}) {
+  function indexIndex({model}:{model:GridItemModel<Vehiculo>}) {
     return (
       <span>
         {model.index + 1}
@@ -312,7 +312,7 @@ const order = (event, columnId) => {
 
       <ViewToolbar title="Lista de Vehiculos">
         <Group>
-          <PersonaEntryForm onPersonaCreated={items.refresh}/>
+          <VehiculoEntryForm onVehiculoCreated={items.refresh}/>
         </Group>
       </ViewToolbar>
       <Grid items={items}>
