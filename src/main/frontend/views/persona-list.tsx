@@ -38,13 +38,13 @@ function PersonaEntryForm(props: PersonaEntryFormProps) {
     try {
       if (nombre.value.trim().length > 0 && apellido.value.trim().length > 0
        && correoElectronico.value.trim().length > 0)  {
-        await PersonaService.createArtista(nombre.value, apellido.value,correoElectronico.value, rol.value);
+        await PersonaService.createPersona(nombre.value, apellido.value,correoElectronico.value, rol.value);
         if (props.onPersonaCreated) {
           props.onPersonaCreated();
         }
         nombre.value = '';
         apellido.value = '';
-        correoElectronico = '';
+        correoElectronico.value = '';
         rol.value = '';
         dialogOpened.value = false;
         Notification.show('Persona creada', { duration: 5000, position: 'bottom-end', theme: 'success' });

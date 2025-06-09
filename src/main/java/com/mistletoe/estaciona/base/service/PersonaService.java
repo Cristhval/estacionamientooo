@@ -23,7 +23,7 @@ public class PersonaService {
         da = new DaoPersona();
     }
 
-    public void createArtista(@NotEmpty String nombre, @NotEmpty String apellido,
+    public void createPersona(@NotEmpty String nombre, @NotEmpty String apellido,
                               @NotEmpty String correoElectronico, @NotEmpty String rol) throws Exception{
         da.getObj().setNombre(nombre);
         da.getObj().setApellido(apellido);

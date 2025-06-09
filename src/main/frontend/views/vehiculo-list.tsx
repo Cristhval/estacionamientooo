@@ -40,7 +40,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
       if (placa.value.trim().length > 0 && marca.value.trim().length > 0
       && modelo.value.trim().length > 0&& color.value.trim().length > 0) {
         const id_persona = parseInt(persona.value) +1;
-        await PersonaService.create(placa.value, id_persona, marca.value, modelo.value, color.value);
+        await VehiculoService.createVehiculo(placa.value, marca.value, modelo.value, color.value, id_persona);
         if (props.onVehiculoCreated) {
           props.onVehiculoCreated();
         }
@@ -144,7 +144,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
 }
 
 //GUARDAR ARTISTA
-const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
+const VehiculoEntryFormUpdate = function(props: VehiculoEntryFormPropsUpdate){
   const dialogOpened = useSignal(false);
 
     const listaPersona = useSignal<String[]>([]);
@@ -156,16 +156,16 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
     const color = useSignal(props.arguments.color);
 
     useEffect(() => {
-        PersonaService.listaAlbumPersona().then(data => listaPersona.value = data);
+        VehiculoService.listaAlbumPersona().then(data => listaPersona.value = data);
       }, []);
-  const updatePersona = async () => {
+  const updateVehiculo = async () => {
       try {
         if (placa.value.trim().length > 0 && marca.value.trim().length > 0
             && modelo.value.trim().length > 0&& color.value.trim().length > 0) {
         const id_persona = parseInt(persona.value) + 1;
-        await PersonaService.update(props.arguments.id,placa.value,id_persona,modelo.value,marca.value,color.value);
-        if (props.arguments.onPersonaUpdated) {
-            props.arguments.onPersonaUpdated();
+        await VehiculoService.updateVehiculo(props.arguments.id,placa.value,modelo.value,marca.value,color.value,id_persona);
+        if (props.arguments.onVehiculoUpdated) {
+            props.arguments.onVehiculoUpdated();
         }
 
         placa.value = '';
@@ -202,7 +202,7 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
                 dialogOpened.value = false;
               }}
             >
-              Candelar
+              Cancelar
             </Button>
             <Button onClick={updateVehiculo} theme="primary">
               Registrar
