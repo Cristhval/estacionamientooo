@@ -121,8 +121,8 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
           <TextField label="Modelo del vehiculo"
             placeholder="Ingrese el modelo del vehiculo"
             aria-label="Nombre del modelo del vehiculo"
-            value={marca.value}
-            onValueChanged={(evt) => (marca.value = evt.detail.value)}
+            value={modelo.value}
+            onValueChanged={(evt) => (modelo.value = evt.detail.value)}
           />
           <TextField label="Color del vehiculo"
             placeholder="Ingrese el color del vehiculo"

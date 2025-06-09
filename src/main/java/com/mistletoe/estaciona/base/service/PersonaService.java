@@ -33,7 +33,7 @@ public class PersonaService {
             throw new  Exception("No se pudo guardar los datos de persona");
     }
 
-    public void aupdatePersona(@NotEmpty Integer id, @NotEmpty String nombre,
+    public void updatePersona(@NotEmpty Integer id, @NotEmpty String nombre,
                                @NotEmpty String apellido,@NotEmpty String correoElectronico,
                                @NotEmpty String rol) throws Exception{
         da.setObj(da.listAll().get(id-1));

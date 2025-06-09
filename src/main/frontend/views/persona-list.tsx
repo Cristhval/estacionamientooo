@@ -59,11 +59,11 @@ function PersonaEntryForm(props: PersonaEntryFormProps) {
   };
 
 
-let listaPersona = useSignal<String[]>([]);
+let listaRol = useSignal<String[]>([]);
     useEffect(() => {
       PersonaService.listRolPersona().then(data =>
         //console.log(data)
-        listaPersona.value = data
+        listaRol.value = data
       );
     }, []);
 
@@ -115,7 +115,7 @@ let listaPersona = useSignal<String[]>([]);
           />
 
              <ComboBox label="Rol"
-             items={listaPersona.value}
+             items={listaRol.value}
              placeholder='Seleccione un tipo de archivo'
              aria-label='Seleccione un tipo de archivo de la lista'
              value={rol.value}
@@ -142,12 +142,12 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
   const nombre = useSignal(props.arguments.nombre);
   const apellido = useSignal(props.arguments.apellido);
   const correoElectronico = useSignal(props.arguments.correoElectronico);
-
+  const rol = useSignal(props.arguments.rol);
   const createPersona = async () => {
     try {
       if (nombre.value.trim().length > 0 && apellido.value.trim().length > 0
                  && correoElectronico.value.trim().length > 0) {
-        await ArtistaService.aupdatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value);
+        await ArtistaService.updatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value);
         if (props.arguments.onPersonaUpdated) {
           props.arguments.onPersonaUpdated();
         }
@@ -167,6 +167,13 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
     }
   };
 
+let listaRol = useSignal<String[]>([]);
+    useEffect(() => {
+      PersonaService.listRolPersona().then(data =>
+        //console.log(data)
+        listaRol.value = data
+      );
+    }, []);
 
   const dialogOpened = useSignal(false);
   return (
@@ -215,7 +222,7 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
            />
 
            <ComboBox label="Rol"
-              items={listaPersona.value}
+              items={listaRol.value}
                placeholder='Seleccione un tipo de archivo'
                aria-label='Seleccione un tipo de archivo de la lista'
                value={rol.value}
