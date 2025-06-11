@@ -287,7 +287,7 @@ const order = (event, columnId) => {
   }
 
 
-  function indexLink({ item}: { item: Persona }) {
+  function indexLink({ item}: { item: Vehiculo }) {
 
     return (
       <span>
