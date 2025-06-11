@@ -1,6 +1,7 @@
 package com.mistletoe.estaciona.base.controller.dao.dao_models;
 
 import com.mistletoe.estaciona.base.controller.dao.AdapterDao;
+import com.mistletoe.estaciona.base.models.Persona;
 import com.mistletoe.estaciona.base.models.Plaza;
 
 public class DaoPlaza extends AdapterDao<Plaza>{
@@ -12,6 +13,8 @@ public class DaoPlaza extends AdapterDao<Plaza>{
     }
 
     public Plaza getObj() {
+        if (obj == null)
+            this.obj = new Plaza();
         return this.obj;
     }
 

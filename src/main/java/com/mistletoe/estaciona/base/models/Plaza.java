@@ -7,13 +7,7 @@ public class Plaza {
     private Integer plazasDisponibles;
     private Integer idPaqueadero;
 
-    public Plaza(Integer id, String codigo, Integer plazasTotales, Integer plazasDisponibles, Integer idPaqueadero) {
-        this.id = id;
-        this.codigo = codigo;
-        this.plazasTotales = plazasTotales;
-        this.plazasDisponibles = plazasDisponibles;
-        this.idPaqueadero = idPaqueadero;
-    }
+
 
     public Integer getId() {
         return id;
