@@ -86,6 +86,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     @Override
     public T get(Integer id) throws Exception {
+        System.out.println("esta en el get ");
         LinkedList<T> list = listAll();
         return list.get(id);
     }

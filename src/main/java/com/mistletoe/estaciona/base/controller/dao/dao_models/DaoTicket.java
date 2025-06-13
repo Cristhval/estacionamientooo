@@ -1,16 +1,10 @@
 package com.mistletoe.estaciona.base.controller.dao.dao_models;
 
 import com.mistletoe.estaciona.base.controller.dao.AdapterDao;
-
 import com.mistletoe.estaciona.base.controller.data_struct.Utiles;
 import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
-import com.mistletoe.estaciona.base.models.Persona;
-import com.mistletoe.estaciona.base.models.RolEnum;
 import com.mistletoe.estaciona.base.models.Ticket;
-import com.mistletoe.estaciona.base.models.Vehiculo;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 
 public class DaoTicket extends AdapterDao<Ticket>{
@@ -18,7 +12,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
 
     public DaoTicket() {
         super(Ticket.class);
-        //TODO Auto-generated constructor stub
     }
 
     public Ticket getObj() {
@@ -37,9 +30,7 @@ public class DaoTicket extends AdapterDao<Ticket>{
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            //TODO
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -48,50 +39,56 @@ public class DaoTicket extends AdapterDao<Ticket>{
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            //TODO
             return false;
-            // TODO: handle exception
         }
     }
 
     public LinkedList<HashMap<String, String>> all(LinkedList<Ticket> tickets) throws Exception {
         LinkedList<HashMap<String, String>> lista = new LinkedList<>();
+        System.out.println("LLEgo al all ");
         if (!tickets.isEmpty()) {
             Ticket[] arreglo = tickets.toArray();
+            System.out.println(arreglo.length);
             for (int i = 0; i < arreglo.length; i++) {
-
+                System.out.println("contador " + i);
+                System.out.println("aaaa " + arreglo[i].getId());
                 lista.add(toDict(arreglo[i]));
             }
         }
         return lista;
     }
 
+    //"id":1,"horaEntrada":"Jun 10, 2025, 7:00:00 PM","horaSalida":"Jun 11, 2025, 7:00:00 PM","tarifa":0.45,"totalPagar":10.0,"id_vehiculo":1,"id_parqueadero":1,"estadoTicket":"PAGADO"
     private HashMap<String, String> toDict(Ticket arreglo) throws Exception {
         DaoParqueadero da = new DaoParqueadero();
         DaoVehiculo dv = new DaoVehiculo();
+        System.out.println("Entre al dict "+ arreglo.getId().toString());
+        System.out.println((arreglo.getId_parqueadero()));
+        System.out.println((arreglo.getId_vehiculo()));
         HashMap<String, String> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
         aux.put("horaEntrada", arreglo.getHoraEntrada().toString());
-        aux.put("horaSalida", arreglo.getHoraSalida().toString());
+        aux.put("horaSalida",  arreglo.getHoraSalida() !=null? arreglo.getHoraSalida().toString():"");
         aux.put("tarifa", arreglo.getTarifa().toString());
-        aux.put("totalPagar", arreglo.getTotalPagar().toString());
-        aux.put("vehiculo",dv.get(arreglo.getId_vehiculo()).getPlaca());
-        aux.put("parqueadero",da.get(arreglo.getId_parqueadero()).getNombre());
+        aux.put("totalPagar", arreglo.getTotalPagar() !=null?  arreglo.getTotalPagar().toString():"");
+        aux.put("vehiculo",dv.get(arreglo.getId_vehiculo()-1).getPlaca());
+        aux.put("parqueadero",da.get(arreglo.getId_parqueadero()-1).getNombre());
+        aux.put("estadoTicket", arreglo.getEstadoTicket().toString());
+
+
+
 
         return aux;
     }
 
     //ORDEN POR HORA DE ENTRADA
     private int partition(Ticket arr[], int begin, int end, Integer type) {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
 
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getHoraEntrada().toString().toLowerCase().compareTo(pivot.getHoraEntrada().toString().toLowerCase()) < 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -101,7 +98,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getHoraEntrada().toString().toLowerCase().compareTo(pivot.getHoraEntrada().toString().toLowerCase()) > 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -149,15 +145,12 @@ public class DaoTicket extends AdapterDao<Ticket>{
     }
 
     private int partition2(Ticket arr[], int begin, int end, Integer type) {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
 
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getHoraSalida().toString().toLowerCase().compareTo(pivot.getHoraSalida().toString().toLowerCase()) < 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -167,7 +160,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getHoraSalida().toString().toLowerCase().compareTo(pivot.getHoraSalida().toString().toLowerCase()) > 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -204,15 +196,12 @@ public class DaoTicket extends AdapterDao<Ticket>{
     }
 
     private int partition3(Ticket arr[], int begin, int end, Integer type) {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
 
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getTarifa()< pivot.getTarifa()) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -222,7 +211,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getTarifa()> pivot.getTarifa())  {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -259,15 +247,11 @@ public class DaoTicket extends AdapterDao<Ticket>{
     }
 
     private int partition4(Ticket arr[], int begin, int end, Integer type) {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
-
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getTotalPagar()< pivot.getTotalPagar()) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -277,7 +261,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else {
             for (int j = begin; j < end; j++) {
                 if (arr[j].getTotalPagar()> pivot.getTotalPagar())  {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -303,7 +286,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
 
 // ORDEN POR VEhiculo
 
-
     public LinkedList<HashMap<String, String>> orderVehiculo(Integer type) throws Exception {
         LinkedList<Ticket> lista = new LinkedList<>();
         if (!listAll().isEmpty()) {
@@ -316,15 +298,13 @@ public class DaoTicket extends AdapterDao<Ticket>{
     }
 
     private int partition5(Ticket arr[], int begin, int end, Integer type) throws Exception {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
+
         DaoVehiculo daoVehiculo = new DaoVehiculo();
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (daoVehiculo.get(arr[j].getId_vehiculo()).getPlaca().toLowerCase().compareTo(daoVehiculo.get(pivot.getId_vehiculo()).getPlaca().toLowerCase()) < 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -334,7 +314,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else { //aux.put("genero",da.get(arreglo.getId_genero()).getNombre());
             for (int j = begin; j < end; j++) {
                 if (daoVehiculo.get(arr[j].getId_vehiculo()).getPlaca().toLowerCase().compareTo(daoVehiculo.get(pivot.getId_vehiculo()).getPlaca().toLowerCase()) > 0)  {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -374,15 +353,12 @@ public class DaoTicket extends AdapterDao<Ticket>{
     }
 
     private int partition6(Ticket arr[], int begin, int end, Integer type) throws Exception {
-        // hashmap //clave - valor
-        // Calendar cd = Calendar.getInstance();
         DaoParqueadero daoParqueadero = new DaoParqueadero();
         Ticket pivot = arr[end];
         int i = (begin - 1);
         if (type == Utiles.ASCEDENTE) {
             for (int j = begin; j < end; j++) {
                 if (daoParqueadero.get(arr[j].getId_vehiculo()).getNombre().toLowerCase().compareTo(daoParqueadero.get(pivot.getId_vehiculo()).getNombre().toLowerCase()) < 0) {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -392,7 +368,6 @@ public class DaoTicket extends AdapterDao<Ticket>{
         } else { //aux.put("genero",da.get(arreglo.getId_genero()).getNombre());
             for (int j = begin; j < end; j++) {
                 if (daoParqueadero.get(arr[j].getId_vehiculo()).getNombre().toLowerCase().compareTo(daoParqueadero.get(pivot.getId_vehiculo()).getNombre().toLowerCase()) > 0)  {
-                    // if (arr[j] <= pivot) {
                     i++;
                     Ticket swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -416,17 +391,98 @@ public class DaoTicket extends AdapterDao<Ticket>{
         }
     }
 
-//    public static void main(String[] args) {
-//        DaoTicket da = new DaoTicket();
-//        da.getObj().setId(da.listAll().getLength() + 1);
-//        da.getObj().setTotalPagar(11.7);
-//        da.getObj().setTarifa(40.0);
-//        da.getObj().setHoraEntrada(new Date());
-//        da.getObj().setId_parqueadero(1);
-//        da.getObj().setId_vehiculo(2);
-//        if (da.save())
-//            System.out.println("GUARDADO");
-//        else
-//            System.out.println("Hubo un error");
-//    }
+    // ORDEN POR ESTADO-------------------------------------------------------------------------------------------
+
+    public LinkedList<HashMap<String, String>> orderEstado(Integer type) throws Exception {
+        LinkedList<Ticket> lista = new LinkedList<>();
+        if (!listAll().isEmpty()) {
+
+            Ticket arr[] = listAll().toArray();
+            quickSort7(arr, 0, arr.length - 1, type);
+            lista.toList(arr);
+        }
+        return all(lista);
+    }
+
+    private int partition7(Ticket arr[], int begin, int end, Integer type) throws Exception {
+        Ticket pivot = arr[end];
+        int i = (begin - 1);
+        if (type == Utiles.ASCEDENTE) {
+            for (int j = begin; j < end; j++) {
+                if (arr[j].getEstadoTicket().toString().toLowerCase().compareTo(pivot.getEstadoTicket().toString().toLowerCase()) < 0) {
+                    i++;
+                    Ticket swapTemp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = swapTemp;
+                }
+            }
+        } else { //aux.put("genero",da.get(arreglo.getId_genero()).getNombre());
+            for (int j = begin; j < end; j++) {
+                if (arr[j].getEstadoTicket().toString().toLowerCase().compareTo(pivot.getEstadoTicket().toString().toLowerCase()) > 0)  {
+                    i++;
+                    Ticket swapTemp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = swapTemp;
+                }
+            }
+        }
+        Ticket swapTemp = arr[i + 1];
+        arr[i + 1] = arr[end];
+        arr[end] = swapTemp;
+
+        return i + 1;
+    }
+
+    private void quickSort7(Ticket arr[], int begin, int end, Integer type) throws Exception {
+        if (begin < end) {
+            int partitionIndex = partition7(arr, begin, end, type);
+
+            quickSort7(arr, begin, partitionIndex - 1, type);
+            quickSort7(arr, partitionIndex + 1, end, type);
+        }
+    }
+    //busqueda
+
+
+    public LinkedList<HashMap<String, String>> search(String attribute, String text, Integer type) throws Exception {
+        System.out.println("Esta haciendo algo aqui? " + attribute + " " + text + " " + type );
+        LinkedList<HashMap<String, String>> lista = all(listAll());
+        System.out.println("que pasa? " + lista);
+        LinkedList<HashMap<String, String>> resp = new LinkedList<>();
+
+        if (!lista.isEmpty()) {
+            HashMap<String, String>[] arr = lista.toArray();
+            System.out.println(attribute+" "+text+" ** *** * * ** * * * *");
+            switch (type) {
+                case 1:
+                    System.out.println(attribute+" "+text+" UNO");
+                    for (HashMap m : arr) {
+                        if (m.get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+                    }
+                    break;
+                case 2:
+                    System.out.println(attribute+" "+text+" DOS");
+                    for (HashMap m : arr) {
+                        if (m.get(attribute).toString().toLowerCase().endsWith(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println(attribute+" "+text+" TRES");
+                    for (HashMap m : arr) {
+                        System.out.println("***** "+m.get(attribute)+"   "+attribute);
+                        if (m.get(attribute).toString().toLowerCase().contains(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+//                        System.out.println("llego aqui?3 "+m.get(attribute));
+                    }
+                    break;
+            }
+        }
+        return resp;
+    }
+
 }

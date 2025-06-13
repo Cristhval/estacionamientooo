@@ -3,6 +3,8 @@ package com.mistletoe.estaciona.base.service;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoParqueadero;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoTicket;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoVehiculo;
+import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
+import com.mistletoe.estaciona.base.models.EstadoTicketEnum;
 import com.mistletoe.estaciona.base.models.Parqueadero;
 import com.mistletoe.estaciona.base.models.Ticket;
 import com.mistletoe.estaciona.base.models.Vehiculo;
@@ -26,32 +28,33 @@ public class TicketService {
         daoTicket = new DaoTicket();
     }
 
-    public void createTicket(@NotNull Date horaEntrada, @NotNull Double tarifa, Integer id_vehiculo,
-                             Integer id_parqueadero) throws Exception {
-        if(horaEntrada.toString().length() > 0 && tarifa.toString().length() > 0 &&
-                id_vehiculo > 0 && id_parqueadero >0) {
-            daoTicket.getObj().setHoraEntrada(horaEntrada);
+    public void createTicket( @NotNull Double tarifa, Integer id_vehiculo,
+                             Integer id_parqueadero, @NotEmpty String estadoTicket) throws Exception {
+        if(tarifa.toString().length() > 0 && id_vehiculo > 0 && id_parqueadero >0 &&
+                estadoTicket.trim().length() > 0) {
+            System.out.println(estadoTicket);
+            daoTicket.getObj().setHoraEntrada(new Date());
             daoTicket.getObj().setTarifa(tarifa);
             daoTicket.getObj().setId_vehiculo(id_vehiculo);
             daoTicket.getObj().setId_parqueadero(id_parqueadero);
-
+            daoTicket.getObj().setEstadoTicket(EstadoTicketEnum.valueOf(estadoTicket));
             if(!daoTicket.save())
                 throw new  Exception("No se pudo guardar los datos del Ticket");
         }
     }
 
-    public void updateTicket(Integer id, @NotNull Date horaEntrada,
-                             @NotNull Date horaSalida, @NotNull Double tarifa,
-                             Integer id_vehiculo, Integer id_parqueadero) throws Exception {
-        if(horaEntrada.toString().length() > 0 && horaSalida.toString().length() > 0 &&
-                tarifa.toString().length() > 0 && id_vehiculo > 0 && id_parqueadero >0) {
-            daoTicket.setObj(daoTicket.listAll().get(id - 1));
-            daoTicket.getObj().setHoraEntrada(horaEntrada);
-            daoTicket.getObj().setHoraSalida(horaSalida);
+    public void updateTicket(Integer id, @NotNull Double tarifa,
+                             Integer id_vehiculo, Integer id_parqueadero, @NotEmpty String estadoTicket) throws Exception {
+        System.out.println(id);
+        System.out.println(estadoTicket);
+        if(tarifa.toString().length() > 0 && id_vehiculo > 0 && id_parqueadero >0 &&
+                estadoTicket.trim().length() > 0) {
+            daoTicket.setObj(daoTicket.listAll().get(id));
             daoTicket.getObj().setTarifa(tarifa);
             daoTicket.getObj().setId_vehiculo(id_vehiculo);
             daoTicket.getObj().setId_parqueadero(id_parqueadero);
-            if(!daoTicket.update(id - 1))
+            daoTicket.getObj().setEstadoTicket(EstadoTicketEnum.valueOf(estadoTicket));
+            if(!daoTicket.update(id ))
                 throw new  Exception("No se pudo modificar los datos del Ticket");
         }
     }
@@ -105,6 +108,7 @@ public class TicketService {
                 aux.put("id_vehiculo", new DaoVehiculo().listAll().get(arreglo[i].getId_vehiculo()-1).getId().toString());
                 aux.put("parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero() -1).getNombre());
                 aux.put("id_parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero()-1).getId().toString());
+                aux.put("estadoTicket", String.valueOf(arreglo[i].getEstadoTicket()));
                 lista.add(aux);
             }
         }
@@ -125,13 +129,21 @@ public class TicketService {
         System.out.println("aaaaa "+ new Date());
         System.out.println("Llego aqui? "+ id);
         daoTicket.setObj(daoTicket.listAll().get(id));
-        daoTicket.getObj().setHoraSalida(new Date());
-        Integer tiempoTotal = calculoTiempo(id,daoTicket.getObj().getHoraSalida());
-        Double calculo = tiempoTotal * daoTicket.getObj().getTarifa();
-        daoTicket.getObj().setTotalPagar(calculo);
-        if(!daoTicket.update(id))
-            throw new  Exception("No se pudo modificar los datos del Ticket");
+        if (daoTicket.getObj().getEstadoTicket() == EstadoTicketEnum.PENDIENTE){
+            daoTicket.getObj().setHoraSalida(new Date());
+            Integer tiempoTotal = calculoTiempo(id,daoTicket.getObj().getHoraSalida());
+            Double calculo = tiempoTotal * daoTicket.getObj().getTarifa();
+            if (calculo == 0){
+                calculo = daoTicket.getObj().getTarifa();
+            }
+            daoTicket.getObj().setTotalPagar(calculo);
+            daoTicket.getObj().setEstadoTicket(EstadoTicketEnum.PAGADO);
+            if(!daoTicket.update(id))
+                throw new  Exception("No se pudo modificar los datos del Ticket");
+        }
     }
+
+
 
     public List<HashMap> order(String atributo, Integer type) throws Exception {
         System.out.println(atributo + "  " + type);
@@ -152,19 +164,42 @@ public class TicketService {
         else if (atributo.equalsIgnoreCase("parqueadero")) {
             return  Arrays.asList(daoTicket.orderParqueadero(type).toArray());
         }
+        else if (atributo.equalsIgnoreCase("estadoTicket")) {
+            return  Arrays.asList(daoTicket.orderEstado(type).toArray());
+        }
         else
             return Arrays.asList((HashMap) listTicket());
     }
 
-    
+
+    public List<String> listEstadoTicket() {
+        List<String> lista = new ArrayList<>();
+        for(EstadoTicketEnum r: EstadoTicketEnum.values()) {
+            lista.add(r.toString());
+        }
+        return lista;
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        System.out.println("LLEGO AQUI??? " + attribute + "  " + text + "  " + type);
+        LinkedList<HashMap<String, String>> lista = daoTicket.search(attribute, text, type);
+        System.out.println("ENcontro algo? " + lista);
+        if(!lista.isEmpty())
+            return Arrays.asList(lista.toArray());
+        else
+            return new ArrayList<>();
+    }
+
+
+//    public static void main(String[] args) throws Exception {
+//        TicketService ticketService = new TicketService();
+//        ticketService.search("estadoTicket", "pagado", 1);
+//    }
+
+
 }
 
 
-
-//    public static void main(String[] args) {
-//        TicketService ticketService = new TicketService();
-//        ticketService.calculoTiempo(2);
-//    }
 
 
 

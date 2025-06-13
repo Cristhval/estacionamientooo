@@ -69,7 +69,9 @@ public class DaoVehiculo extends AdapterDao<Vehiculo>{
         aux.put("placa", arreglo.getPlaca());
         aux.put("marca", arreglo.getMarca());
         aux.put("modelo", arreglo.getModelo());
+        aux.put("color", arreglo.getColor());
         aux.put("persona",da.get(arreglo.getId_persona()).getNombre());
+
 
         return aux;
     }
@@ -351,18 +353,47 @@ public class DaoVehiculo extends AdapterDao<Vehiculo>{
         }
     }
 
-//    public static void main(String[] args) {
-//        DaoVehiculo da = new DaoVehiculo();
-//        da.getObj().setId(da.listAll().getLength() + 1);
-//        da.getObj().setColor("azul");
-//        da.getObj().setModelo("hyundai");
-//        da.getObj().setPlaca("PLC-123");
-//        da.getObj().setMarca("Pepsi");
-//        da.getObj().setId_Persona(1);
-//
-//        if (da.save())
-//            System.out.println("GUARDADO");
-//        else
-//            System.out.println("Hubo un error");
-//    }
+
+    //BUSQUEDA BINARIA
+    public LinkedList<HashMap<String, String>> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, String>> lista = all(listAll());
+        LinkedList<HashMap<String, String>> resp = new LinkedList<>();
+
+        if (!lista.isEmpty()) {
+            HashMap<String, String>[] arr = lista.toArray();
+            System.out.println(attribute+" "+text+" ** *** * * ** * * * *");
+            switch (type) {
+                case 1:
+                    System.out.println(attribute+" "+text+" UNO");
+                    for (HashMap m : arr) {
+                        if (m.get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+//                        System.out.println("llego aqui? "+m.get(attribute));
+                    }
+                    break;
+                case 2:
+                    System.out.println(attribute+" "+text+" DOS");
+                    for (HashMap m : arr) {
+                        if (m.get(attribute).toString().toLowerCase().endsWith(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+//                        System.out.println("llego aqui?2 "+m.get(attribute));
+                    }
+                    break;
+                default:
+                    System.out.println(attribute+" "+text+" TRES");
+                    for (HashMap m : arr) {
+                        System.out.println("***** "+m.get(attribute)+"   "+attribute);
+                        if (m.get(attribute).toString().toLowerCase().contains(text.toLowerCase())) {
+                            resp.add(m);
+                        }
+//                        System.out.println("llego aqui?3 "+m.get(attribute));
+                    }
+                    break;
+            }
+        }
+        return resp;
+    }
+
 }

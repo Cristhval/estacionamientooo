@@ -2,6 +2,7 @@ package com.mistletoe.estaciona.base.service;
 
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoPersona;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoVehiculo;
+import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
 import com.mistletoe.estaciona.base.models.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -42,13 +43,13 @@ public class VehiculoService {
                        @NotEmpty String color, Integer id_persona) throws Exception {
         if(placa.trim().length() > 0 && marca.trim().length() > 0 && modelo.trim().length() > 0 &&
                 color.trim().length() > 0 &&  id_persona > 0) {
-            dv.setObj(dv.listAll().get(id - 1));
+            dv.setObj(dv.listAll().get(id));
             dv.getObj().setPlaca(placa);
             dv.getObj().setMarca(marca);
             dv.getObj().setModelo(modelo);
             dv.getObj().setColor(color);
             dv.getObj().setId_Persona(id_persona);
-            if(!dv.update(id - 1))
+            if(!dv.update(id ))
                 throw new  Exception("No se pudo modificar los datos del vehiculo");
         }
     }
@@ -108,6 +109,16 @@ public class VehiculoService {
         }
         else
             return Arrays.asList((HashMap) listVehiculo());
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        System.out.println("LLEgo? " + attribute + text + type);
+        LinkedList<HashMap<String, String>> lista = dv.search(attribute, text, type);
+        System.out.println("Enncontro algo? " + lista);
+        if(!lista.isEmpty())
+            return Arrays.asList(lista.toArray());
+        else
+            return new ArrayList<>();
     }
 }
 

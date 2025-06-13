@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout,HorizontalLayout,Icon, Select } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { PersonaService, VehiculoService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -240,8 +240,8 @@ const VehiculoEntryFormUpdate = function(props: VehiculoEntryFormPropsUpdate){
             />
             <TextField
              label="Color"
-             value={marca.value}
-             onValueChanged={(evt) => (marca.value = evt.detail.value)}
+             value={color.value}
+             onValueChanged={(evt) => (color.value = evt.detail.value)}
             />
 
         </VerticalLayout>
@@ -286,7 +286,49 @@ const order = (event, columnId) => {
     });
   }
 
+ //BUSQUEDA BINARIA-------------------------------------------------------------------------------------
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
+      label: 'Placa',
+      value: 'placa',
+    },
+    {
+      label: 'Persona',
+      value: 'persona',
+    },
+    {
+        label: 'Modelo',
+        value: 'modelo',
+    },
+    {
+        label: 'Marca',
+        value: 'marca',
+    },
+    {
+        label: 'Color',
+        value: 'color',
+    },
+  ];
+  const search = async () => {
+    try {
+      console.log(criterio.value+" "+texto.value);
+      VehiculoService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
 
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
   function indexLink({ item}: { item: Vehiculo }) {
 
     return (
@@ -315,6 +357,29 @@ const order = (event, columnId) => {
           <VehiculoEntryForm onVehiculoCreated={items.refresh}/>
         </Group>
       </ViewToolbar>
+
+       <HorizontalLayout theme="spacing">
+                    <Select items={itemSelect}
+                      value={criterio.value}
+                      onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+                      placeholder="Selecione un cirterio">
+                    </Select>
+
+                    <TextField
+                      placeholder="Search"
+                      style={{ width: '50%' }}
+                      value={texto.value}
+                      onValueChanged={(evt) => (texto.value = evt.detail.value)}
+                    >
+                      <Icon slot="prefix" icon="vaadin:search" />
+                    </TextField>
+                   <span>
+                    <Button onClick={search} theme="primary">
+                       BUSCAR
+                      </Button>
+                   </span>
+                  </HorizontalLayout>
+
       <Grid items={items}>
         <GridSortColumn path="placa" header="Placa" onDirectionChanged={(e) => order(e, "placa")} />
         <GridSortColumn path="persona" header="Persona" onDirectionChanged={(e) => order(e, "persona")} />
