@@ -5,8 +5,8 @@ public class Plaza {
     private String codigo;
     private Integer plazasTotales;
     private Integer plazasDisponibles;
-    private Integer idPaqueadero;
-
+    private Integer idParqueadero;
+    private EstadoEnum estado;
 
 
     public Integer getId() {
@@ -42,10 +42,18 @@ public class Plaza {
     }
 
     public Integer getIdPaqueadero() {
-        return idPaqueadero;
+        return idParqueadero;
     }
 
     public void setIdPaqueadero(Integer idPaqueadero) {
-        this.idPaqueadero = idPaqueadero;
+        this.idParqueadero = idPaqueadero;
+    }
+
+    public EstadoEnum getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoEnum estado) {
+        this.estado = estado;
     }
 }
