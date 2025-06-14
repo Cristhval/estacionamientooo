@@ -11,6 +11,11 @@ public class Reserva {
     private Integer idCliente;
     private Integer idEspacioParqueadero;
 
+    // Constructor para inicializacion default y librerias
+    public Reserva() {
+    }
+
+    // Constructor con todos los argumentos
     public Reserva(Integer id, Date fecha, LocalDateTime horaEntrada, LocalDateTime horaSalida, Integer idCliente, Integer idEspacioParqueadero) {
         this.id = id;
         this.fecha = fecha;

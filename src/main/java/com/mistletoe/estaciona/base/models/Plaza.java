@@ -41,12 +41,12 @@ public class Plaza {
         this.plazasDisponibles = plazasDisponibles;
     }
 
-    public Integer getIdPaqueadero() {
+    public Integer getidParqueadero() {
         return idParqueadero;
     }
 
-    public void setIdPaqueadero(Integer idPaqueadero) {
-        this.idParqueadero = idPaqueadero;
+    public void setidParqueadero(Integer idParqueadero) {
+        this.idParqueadero = idParqueadero;
     }
 
     public EstadoEnum getEstado() {
