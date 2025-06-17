@@ -3,8 +3,7 @@ package com.mistletoe.estaciona.base.controller.dao.dao_models;
 import com.mistletoe.estaciona.base.controller.dao.AdapterDao;
 import com.mistletoe.estaciona.base.models.Parqueadero;
 
-
-public class DaoParqueadero extends AdapterDao<Parqueadero>{
+public class DaoParqueadero extends AdapterDao<Parqueadero> {
     private Parqueadero obj;
 
     public DaoParqueadero() {

@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
 
-import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList; 
+import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
 
 import com.google.gson.Gson;
 
@@ -35,17 +35,17 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     private void saveFile(String data) throws Exception {
         File file = new File(base_path + clazz.getSimpleName() + ".json");
-        
+
         if (!file.exists()) {
             System.out.println("Aqui estoy " + file.getAbsolutePath());
             file.createNewFile();
         }
-      
+
         FileWriter fw = new FileWriter(file);
         fw.write(data);
         fw.flush();
         fw.close();
-       
+
     }
 
     @Override
@@ -84,10 +84,11 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     @Override
     public T get(Integer id) throws Exception {
-        if(!listAll().isEmpty()) {
+        if (!listAll().isEmpty()) {
             return BinarySearchRecursive(listAll().toArray(), 0, listAll().getLength() - 1, id);
-        } else return null;
-        
+        } else
+            return null;
+
     }
 
     public T BinarySearchRecursive(T arr[], int a, int b, Integer id) throws Exception {

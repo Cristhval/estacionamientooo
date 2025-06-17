@@ -1,28 +1,25 @@
 package com.mistletoe.estaciona.base.models;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Reserva {
     private Integer id;
     private Date fecha;
-    private LocalDateTime horaEntrada;
-    private LocalDateTime horaSalida;
+    private Date horaEntrada;
+    private Date horaSalida;
     private Integer idCliente;
-    private Integer idEspacioParqueadero;
+    private Integer idPlaza;
 
-    // Constructor para inicializacion default y librerias
     public Reserva() {
     }
 
-    // Constructor con todos los argumentos
-    public Reserva(Integer id, Date fecha, LocalDateTime horaEntrada, LocalDateTime horaSalida, Integer idCliente, Integer idEspacioParqueadero) {
+    public Reserva(Integer id, Date fecha, Date horaEntrada, Date horaSalida, Integer idCliente, Integer idPlaza) {
         this.id = id;
         this.fecha = fecha;
         this.horaEntrada = horaEntrada;
         this.horaSalida = horaSalida;
         this.idCliente = idCliente;
-        this.idEspacioParqueadero = idEspacioParqueadero;
+        this.idPlaza = idPlaza;
     }
 
     public Integer getId() {
@@ -41,19 +38,19 @@ public class Reserva {
         this.fecha = fecha;
     }
 
-    public LocalDateTime getHoraEntrada() {
+    public Date getHoraEntrada() {
         return horaEntrada;
     }
 
-    public void setHoraEntrada(LocalDateTime horaEntrada) {
+    public void setHoraEntrada(Date horaEntrada) {
         this.horaEntrada = horaEntrada;
     }
 
-    public LocalDateTime getHoraSalida() {
+    public Date getHoraSalida() {
         return horaSalida;
     }
 
-    public void setHoraSalida(LocalDateTime horaSalida) {
+    public void setHoraSalida(Date horaSalida) {
         this.horaSalida = horaSalida;
     }
 
@@ -65,11 +62,11 @@ public class Reserva {
         this.idCliente = idCliente;
     }
 
-    public Integer getIdEspacioParqueadero() {
-        return idEspacioParqueadero;
+    public Integer getIdPlaza() {
+        return idPlaza;
     }
 
-    public void setIdEspacioParqueadero(Integer idEspacioParqueadero) {
-        this.idEspacioParqueadero = idEspacioParqueadero;
+    public void setIdPlaza(Integer idPlaza) {
+        this.idPlaza = idPlaza;
     }
 }

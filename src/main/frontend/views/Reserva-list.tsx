@@ -1,352 +1,237 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout } from '@vaadin/react-components';
-import { Notification } from '@vaadin/react-components/Notification';
-import { ReservaService } from 'Frontend/generated/endpoints';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, Notification, VerticalLayout } from '@vaadin/react-components';
 import { useSignal } from '@vaadin/hilla-react-signals';
+import { useEffect, useState } from 'react';
+import { ReservaService } from 'Frontend/generated/endpoints';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-
-import Reserva from 'Frontend/generated/com/mistletoe/estaciona/base/models/Reserva';
-import { useEffect, useState } from 'react';
-
-import { GridSortColumn } from '@vaadin/react-components/GridSortColumn';
 
 export const config: ViewConfig = {
   title: 'Reserva',
   menu: {
     icon: 'vaadin:clipboard-check',
-    order: 7,
+    order: 2,
     title: 'Reserva',
   },
 };
 
-type ReservaEntryFormProps = {
-  onReservaCreated?: () => void;
-};
 
-function ReservaEntryForm(props: ReservaEntryFormProps): JSX.Element {
+function ReservaEntryForm({ onReservaCreated }: { onReservaCreated?: () => void }) {
   const dialogOpened = useSignal(false);
+  const fecha = useSignal('');
+  const horaEntrada = useSignal('');
+  const horaSalida = useSignal('');
+  const cliente = useSignal('');
+  const plaza = useSignal('');
 
-  const fecha = useSignal<string>('');
-  const horaEntrada = useSignal<string>('');
-  const horaSalida = useSignal<string>('');
-  const idCliente = useSignal('');
-  const idEspacioParqueadero = useSignal('');
+  const listaClientes = useSignal<{ label: string; value: string }[]>([]);
+  const listaPlazas = useSignal<{ label: string; value: string }[]>([]);
 
-  const createReserva = async (): Promise<void> => {
+  useEffect(() => {
+    const fetchClientes = async () => {
+      const data = await ReservaService.listaAlbumClientes();
+      listaClientes.value = (data ?? []).map((item: any) => ({
+        label: item.label ?? String(item),
+        value: String(item.value ?? item.id),
+      }));
+    };
+    const fetchPlazas = async () => {
+      const data = await ReservaService.listaAlbumPlazas();
+      listaPlazas.value = (data ?? []).map((item: any) => ({
+        label: item.label ?? String(item),
+        value: String(item.value ?? item.id),
+      }));
+    };
+    fetchClientes();
+    fetchPlazas();
+  }, []);
+
+  const crearReserva = async () => {
     try {
-      const idClienteNum = parseInt(idCliente.value || '0');
-      const idEspacioParqueaderoNum = parseInt(idEspacioParqueadero.value || '0');
+      if (fecha.value && horaEntrada.value && horaSalida.value && cliente.value && plaza.value) {
+        const fechaParsed = new Date(fecha.value);
+        const [entradaHoras, entradaMinutos] = horaEntrada.value.split(':').map(Number);
+        const [salidaHoras, salidaMinutos] = horaSalida.value.split(':').map(Number);
 
-      // Correccion: Eliminar cualquier espacio despues de la 'T'
-      const formattedHoraEntrada = horaEntrada.value.replace('T ', 'T');
-      const formattedHoraSalida = horaSalida.value.replace('T ', 'T');
+        const horaEntradaDate = new Date(fechaParsed);
+        horaEntradaDate.setHours(entradaHoras, entradaMinutos, 0, 0);
 
-      await ReservaService.createReserva(
-        fecha.value,
-        formattedHoraEntrada,
-        formattedHoraSalida,
-        idClienteNum,
-        idEspacioParqueaderoNum
-      );
-      if (props.onReservaCreated) {
-        props.onReservaCreated();
+        const horaSalidaDate = new Date(fechaParsed);
+        horaSalidaDate.setHours(salidaHoras, salidaMinutos, 0, 0);
+
+        const idCliente = parseInt(cliente.value);
+        const idPlaza = parseInt(plaza.value);
+
+        await ReservaService.createReserva(
+          fechaParsed.toISOString(),
+          horaEntradaDate.toISOString(),
+          horaSalidaDate.toISOString(),
+          idCliente,
+          idPlaza
+        );
+
+        dialogOpened.value = false;
+        Notification.show('Reserva creada', { duration: 4000, position: 'bottom-end', theme: 'success' });
+        if (onReservaCreated) onReservaCreated();
+      } else {
+        Notification.show('Complete todos los campos', { duration: 4000, position: 'top-center', theme: 'error' });
       }
-      fecha.value = '';
-      horaEntrada.value = '';
-      horaSalida.value = '';
-      idCliente.value = '';
-      idEspacioParqueadero.value = '';
-      dialogOpened.value = false;
-      Notification.show('Reserva creada exitosamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
-    } catch (error: unknown) {
-      console.log(error);
+    } catch (error) {
       handleError(error);
-      Notification.show((error as Error)?.message || 'Error desconocido al crear la reserva', { duration: 5000, position: 'top-center', theme: 'error' });
-    }
-  };
-
-  const listaClientes = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    ReservaService.listClienteCombo().then(data => {
-      listaClientes.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  const listaEspacios = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    ReservaService.listEspacioParqueaderoCombo().then(data => {
-      listaEspacios.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  return (
-    <>
-      <Dialog
-        modeless
-        headerTitle="Nueva Reserva"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
-        footer={
-          <>
-            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
-            <Button onClick={createReserva} theme="primary">
-              Registrar
-            </Button>
-          </>
-        }
-      >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <DatePicker
-            label="Fecha"
-            placeholder="Seleccione una fecha"
-            value={fecha.value}
-            onValueChanged={(evt) => (fecha.value = evt.detail.value)}
-          />
-          <TextField label="Hora Entrada (YYYY-MM-DDTHH:MM:SS)"
-            placeholder="Ej: 2025-06-14T10:00:00"
-            value={horaEntrada.value}
-            onValueChanged={(evt) => (horaEntrada.value = evt.detail.value)}
-          />
-          <TextField label="Hora Salida (YYYY-MM-DDTHH:MM:SS)"
-            placeholder="Ej: 2025-06-14T12:00:00"
-            value={horaSalida.value}
-            onValueChanged={(evt) => (horaSalida.value = evt.detail.value)}
-          />
-          <ComboBox label="Cliente"
-            items={listaClientes.value}
-            placeholder='Seleccione un Cliente'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idCliente.value}
-            onValueChanged={(evt) => (idCliente.value = evt.detail.value)}
-          />
-          <ComboBox label="Espacio Parqueadero"
-            items={listaEspacios.value}
-            placeholder='Seleccione un Espacio de Parqueadero'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idEspacioParqueadero.value}
-            onValueChanged={(evt) => (idEspacioParqueadero.value = evt.detail.value)}
-          />
-        </VerticalLayout>
-      </Dialog>
-      <Button
-        onClick={() => {
-          dialogOpened.value = true;
-        }}
-      >
-        Agregar
-      </Button>
-    </>
-  );
-}
-
-type ReservaEntryFormUpdateProps = {
-  arguments: Reserva;
-  onReservaUpdated?: () => void;
-};
-
-function ReservaEntryFormUpdate(props: ReservaEntryFormUpdateProps): JSX.Element {
-  const dialogOpened = useSignal(false);
-
-  const fecha = useSignal<string>(props.arguments.fecha ? new Date(props.arguments.fecha as string).toISOString().split('T')[0] : '');
-  const horaEntrada = useSignal<string>(props.arguments.horaEntrada ? new Date(props.arguments.horaEntrada as string).toISOString().substring(0, 19) : '');
-  const horaSalida = useSignal<string>(props.arguments.horaSalida ? new Date(props.arguments.horaSalida as string).toISOString().substring(0, 19) : '');
-  const idCliente = useSignal<string>(props.arguments.idCliente?.toString() ?? '');
-  const idEspacioParqueadero = useSignal<string>(props.arguments.idEspacioParqueadero?.toString() ?? '');
-  const id = useSignal(props.arguments.id);
-
-  useEffect(() => {
-    // Estas líneas causaban un error porque 'nombre', 'genero', 'album' no existen en Reserva
-    // nombre.value = props.arguments.nombre ?? '';
-    // genero.value = props.arguments.id_genero?.toString() ?? '';
-    // album.value = props.arguments.id_album?.toString() ?? '';
-    fecha.value = props.arguments.fecha ? new Date(props.arguments.fecha as string).toISOString().split('T')[0] : '';
-    horaEntrada.value = props.arguments.horaEntrada ? new Date(props.arguments.horaEntrada as string).toISOString().substring(0, 19) : '';
-    horaSalida.value = props.arguments.horaSalida ? new Date(props.arguments.horaSalida as string).toISOString().substring(0, 19) : '';
-    idCliente.value = props.arguments.idCliente?.toString() ?? '';
-    idEspacioParqueadero.value = props.arguments.idEspacioParqueadero?.toString() ?? '';
-    id.value = props.arguments.id;
-  }, [props.arguments]);
-
-  const listaClientes = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    ReservaService.listClienteCombo().then(data => {
-      listaClientes.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  const listaEspacios = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    ReservaService.listEspacioParqueaderoCombo().then(data => {
-      listaEspacios.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  const updateReserva = async (): Promise<void> => {
-    try {
-      const idClienteNum = parseInt(idCliente.value || '0');
-      const idEspacioParqueaderoNum = parseInt(idEspacioParqueadero.value || '0');
-
-      await ReservaService.updateReserva(
-        id.value ?? 0,
-        fecha.value,
-        horaEntrada.value,
-        horaSalida.value,
-        idClienteNum,
-        idEspacioParqueaderoNum
-      );
-      if (props.onReservaUpdated) {
-        props.onReservaUpdated();
-      }
-      dialogOpened.value = false;
-      Notification.show('Reserva actualizada exitosamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
-    } catch (error: unknown) {
-      console.log(error);
-      handleError(error);
-      Notification.show((error as Error)?.message || 'Error desconocido al actualizar la reserva', { duration: 5000, position: 'top-center', theme: 'error' });
     }
   };
 
   return (
     <>
-      <Dialog
-        modeless
-        headerTitle="Actualizar Reserva"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
+      <Dialog modeless headerTitle="Nueva Reserva" opened={dialogOpened.value}
+        onOpenedChanged={({ detail }) => dialogOpened.value = detail.value}
         footer={
           <>
             <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
-            <Button onClick={updateReserva} theme="primary">
-              Actualizar
-            </Button>
+            <Button onClick={crearReserva} theme="primary">Registrar</Button>
           </>
         }
       >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <DatePicker
-            label="Fecha"
-            placeholder="Seleccione una fecha"
-            value={fecha.value}
-            onValueChanged={(evt) => (fecha.value = evt.detail.value)}
-          />
-          <TextField label="Hora Entrada (YYYY-MM-DDTHH:MM:SS)"
-            placeholder="Ej: 2025-06-14T10:00:00"
-            value={horaEntrada.value}
-            onValueChanged={(evt) => (horaEntrada.value = evt.detail.value)}
-          />
-          <TextField label="Hora Salida (YYYY-MM-DDTHH:MM:SS)"
-            placeholder="Ej: 2025-06-14T12:00:00"
-            value={horaSalida.value}
-            onValueChanged={(evt) => (horaSalida.value = evt.detail.value)}
-          />
-          <ComboBox label="Cliente"
-            items={listaClientes.value}
-            placeholder='Seleccione un Cliente'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idCliente.value}
-            onValueChanged={(evt) => (idCliente.value = evt.detail.value)}
-          />
-          <ComboBox label="Espacio Parqueadero"
-            items={listaEspacios.value}
-            placeholder='Seleccione un Espacio de Parqueadero'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idEspacioParqueadero.value}
-            onValueChanged={(evt) => (idEspacioParqueadero.value = evt.detail.value)}
-          />
+        <VerticalLayout style={{ width: '20rem', alignItems: 'stretch' }}>
+          <DatePicker label="Fecha" value={fecha.value} onValueChanged={(e) => (fecha.value = e.detail.value)} />
+          <label>Hora Entrada</label>
+          <input type="time" value={horaEntrada.value} onChange={(e) => (horaEntrada.value = e.target.value)} />
+          <label>Hora Salida</label>
+          <input type="time" value={horaSalida.value} onChange={(e) => (horaSalida.value = e.target.value)} />
+          <ComboBox label="Cliente" items={listaClientes.value} itemLabelPath="label" itemValuePath="value"
+            value={cliente.value} onValueChanged={(e) => (cliente.value = e.detail.value)} />
+          <ComboBox label="Plaza" items={listaPlazas.value} itemLabelPath="label" itemValuePath="value"
+            value={plaza.value} onValueChanged={(e) => (plaza.value = e.detail.value)} />
         </VerticalLayout>
       </Dialog>
-      <Button
-        onClick={() => {
-          dialogOpened.value = true;
-        }}
-      >
-        Editar
-      </Button>
+
+      <Button onClick={() => dialogOpened.value = true}>Agregar</Button>
     </>
   );
 }
 
-const dateFormatter = new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' });
-const timeFormatter = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+function ReservaEntryFormUpdate({ item, onReservaUpdated }: { item: any, onReservaUpdated?: () => void }) {
+  const dialogOpened = useSignal(false);
+  const fecha = useSignal(item.fecha);
+  const horaEntrada = useSignal(item.horaEntrada);
+  const horaSalida = useSignal(item.horaSalida);
+  const cliente = useSignal(item.id_cliente);
+  const plaza = useSignal(item.id_plaza);
+
+  const listaClientes = useSignal<{ label: string; value: string }[]>([]);
+  const listaPlazas = useSignal<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      const data = await ReservaService.listaAlbumClientes();
+      listaClientes.value = (data ?? []).map((item: any) => ({
+        label: item.label ?? String(item),
+        value: String(item.value ?? item.id),
+      }));
+    };
+    const fetchPlazas = async () => {
+      const data = await ReservaService.listaAlbumPlazas();
+      listaPlazas.value = (data ?? []).map((item: any) => ({
+        label: item.label ?? String(item),
+        value: String(item.value ?? item.id),
+      }));
+    };
+    fetchClientes();
+    fetchPlazas();
+  }, []);
+
+  const updateReserva = async () => {
+    try {
+      if (fecha.value && horaEntrada.value && horaSalida.value && cliente.value && plaza.value) {
+        const fechaParsed = new Date(fecha.value);
+        const [entradaHoras, entradaMinutos] = horaEntrada.value.split(':').map(Number);
+        const [salidaHoras, salidaMinutos] = horaSalida.value.split(':').map(Number);
+
+        const horaEntradaDate = new Date(fechaParsed);
+        horaEntradaDate.setHours(entradaHoras, entradaMinutos, 0, 0);
+
+        const horaSalidaDate = new Date(fechaParsed);
+        horaSalidaDate.setHours(salidaHoras, salidaMinutos, 0, 0);
+
+        const idCliente = parseInt(cliente.value);
+        const idPlaza = parseInt(plaza.value);
+
+        await ReservaService.updateReserva(
+          parseInt(item.id),
+          fechaParsed.toISOString(),
+          horaEntradaDate.toISOString(),
+          horaSalidaDate.toISOString(),
+          idCliente,
+          idPlaza
+        );
+
+        dialogOpened.value = false;
+        Notification.show('Reserva actualizada', { duration: 4000, position: 'bottom-end', theme: 'success' });
+        if (onReservaUpdated) onReservaUpdated();
+      } else {
+        Notification.show('Complete todos los campos', { duration: 4000, position: 'top-center', theme: 'error' });
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <>
+      <Dialog modeless headerTitle="Editar Reserva" opened={dialogOpened.value}
+        onOpenedChanged={({ detail }) => dialogOpened.value = detail.value}
+        footer={
+          <>
+            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
+            <Button onClick={updateReserva} theme="primary">Actualizar</Button>
+          </>
+        }
+      >
+        <VerticalLayout style={{ width: '20rem', alignItems: 'stretch' }}>
+          <DatePicker label="Fecha" value={fecha.value} onValueChanged={(e) => (fecha.value = e.detail.value)} />
+          <label>Hora Entrada</label>
+          <input type="time" value={horaEntrada.value} onChange={(e) => (horaEntrada.value = e.target.value)} />
+          <label>Hora Salida</label>
+          <input type="time" value={horaSalida.value} onChange={(e) => (horaSalida.value = e.target.value)} />
+          <ComboBox label="Cliente" items={listaClientes.value} itemLabelPath="label" itemValuePath="value"
+            value={cliente.value} onValueChanged={(e) => (cliente.value = e.detail.value)} />
+          <ComboBox label="Plaza" items={listaPlazas.value} itemLabelPath="label" itemValuePath="value"
+            value={plaza.value} onValueChanged={(e) => (plaza.value = e.detail.value)} />
+        </VerticalLayout>
+      </Dialog>
+
+      <Button onClick={() => dialogOpened.value = true}>Editar</Button>
+    </>
+  );
+}
+
 
 export default function ReservaView() {
-  const [items, setItems] = useState<Record<string, unknown>[]>([]);
+  const [items, setItems] = useState<any[]>([]);
 
-  const callData = async (): Promise<void> => {
-    try {
-      const data = await ReservaService.listReservaConNombres();
-      setItems(((data ?? []).filter((item): item is Record<string, string | undefined> => item !== undefined) as Record<string, unknown>[]));
-    } catch (error) {
-      console.error("Error al cargar datos de reservas:", error);
-      handleError(error);
-      Notification.show('Error al cargar la lista de reservas', { duration: 5000, position: 'top-center', theme: 'error' });
-    }
+  const cargarReservas = () => {
+    ReservaService.listReserva().then((data) => setItems(data ?? []));
   };
 
-  useEffect(() => {
-    callData();
-  }, []);
-
-  function index({ model }: { model: GridItemModel<Record<string, unknown>> }) {
-    return (
-      <span>
-        {model.index + 1}
-      </span>
-    );
-  }
-
-  function link({ item }: { item: Record<string, unknown> }): JSX.Element {
-    const reservaItem: Reserva = {
-      id: item.id as number | undefined,
-      fecha: item.fecha as string | undefined,
-      horaEntrada: item.horaEntrada as any,
-      horaSalida: item.horaSalida as any,
-      idCliente: item.idCliente as number | undefined,
-      idEspacioParqueadero: item.idEspacioParqueadero as number | undefined
-    };
-    return (
-      <span>
-        <ReservaEntryFormUpdate arguments={reservaItem} onReservaUpdated={callData} />
-      </span>
-    );
-  }
+  useEffect(() => { cargarReservas(); }, []);
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <ViewToolbar title="Lista de Reservas">
         <Group>
-          <ReservaEntryForm onReservaCreated={callData} />
+          <ReservaEntryForm onReservaCreated={cargarReservas} />
         </Group>
       </ViewToolbar>
+
       <Grid items={items}>
-        <GridColumn header="Nro" renderer={index} />
-        <GridSortColumn path="fecha" header="Fecha" />
-        <GridSortColumn path="horaEntrada" header="Hora Entrada" />
-        <GridSortColumn path="horaSalida" header="Hora Salida" />
-        <GridSortColumn path="nombreCliente" header="Cliente" />
-        <GridSortColumn path="codigoEspacio" header="Espacio Parqueadero" />
-        <GridColumn header="Acciones" renderer={link} />
+        <GridColumn header="#" renderer={({ model }: { model: GridItemModel<any> }) => <>{model.index + 1}</>} />
+        <GridColumn path="fecha" header="Fecha" />
+        <GridColumn path="horaEntrada" header="Hora Entrada" />
+        <GridColumn path="horaSalida" header="Hora Salida" />
+        <GridColumn path="cliente" header="Cliente" />
+        <GridColumn path="plaza" header="Plaza" />
+        <GridColumn header="Acciones" renderer={({ item }) => <ReservaEntryFormUpdate item={item} onReservaUpdated={cargarReservas} />} />
       </Grid>
     </main>
   );

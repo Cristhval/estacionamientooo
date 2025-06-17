@@ -47,7 +47,8 @@ public class ParqueaderoService {
         }
     }
 
-    public void updateParqueadero(@NotNull Integer id, @NotEmpty String nombre, @NotEmpty String direccion) throws Exception {
+    public void updateParqueadero(@NotNull Integer id, @NotEmpty String nombre, @NotEmpty String direccion)
+            throws Exception {
         if (id == null || id <= 0 || nombre.trim().isEmpty() || direccion.trim().isEmpty()) {
             throw new Exception("Datos del parqueadero incompletos o invalidos para actualizar.");
         }
