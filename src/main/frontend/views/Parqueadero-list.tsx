@@ -12,11 +12,11 @@ import { useEffect, useState } from 'react';
 import { GridSortColumn, GridSortColumnDirectionChangedEvent } from '@vaadin/react-components/GridSortColumn';
 
 export const config: ViewConfig = {
-  title: 'Parqueaderos',
+  title: 'Parqueadero',
   menu: {
     icon: 'vaadin:clipboard-check',
     order: 5,
-    title: 'Parqueaderos',
+    title: 'Parqueadero',
   },
 };
 
@@ -179,7 +179,7 @@ export default function ParqueaderoView() {
 
   const callData = async (): Promise<void> => {
     try {
-      // ParqueaderoService.listAll() devuelve List<Parqueadero>, no List<HashMap>
+      
       const data = await ParqueaderoService.listAll();
       setItems((data ?? []).filter((item): item is Parqueadero => item !== undefined));
     } catch (error) {
