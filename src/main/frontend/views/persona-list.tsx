@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout, GridSortColumn, HorizontalLayout,Icon,Select } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { PersonaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -147,13 +147,13 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
     try {
       if (nombre.value.trim().length > 0 && apellido.value.trim().length > 0
                  && correoElectronico.value.trim().length > 0) {
-        await ArtistaService.updatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value);
+        await PersonaService.updatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value);
         if (props.arguments.onPersonaUpdated) {
           props.arguments.onPersonaUpdated();
         }
         nombre.value = '';
         apellido.value = '';
-        correoElectronico = '';
+        correoElectronico.value = '';
         rol.value = '';
         dialogOpened.value = false;
         Notification.show('Persona actualizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
@@ -192,7 +192,7 @@ let listaRol = useSignal<String[]>([]);
                 dialogOpened.value = false;
               }}
             >
-              Candelar
+              Cancelar
             </Button>
             <Button onClick={createPersona} theme="primary">
               Registrar
@@ -245,15 +245,75 @@ let listaRol = useSignal<String[]>([]);
 //LISTA DE PERSONAS
 export default function PersonaView() {
 
-  const dataProvider = useDataProvider<Persona>({
-    list: () => PersonaService.listAll(),
-  });
+//  const dataProvider = useDataProvider<Persona>({
+//    list: () => PersonaService.listAll(),
+//  });
+
+const [items, setItems] = useState([]);
+  useEffect(() => {
+    PersonaService.listPersona().then(function (data) {
+      //items.values = data;
+      setItems(data);
+    });
+  }, []);
+
+const order = (event, columnId) => {
+    console.log(event);
+    const direction = event.detail.value;
+    // Custom logic based on the sorting direction
+    console.log(`Sort direction changed for column ${columnId} to ${direction}`);
+
+    var dir = (direction == 'asc') ? 1 : 2;
+    PersonaService.order(columnId, dir).then(function (data) {
+      setItems(data);
+    });
+  }
+
+  const criterio = useSignal('');
+    const texto = useSignal('');
+    const itemSelect = [
+      {
+        label: 'Nombre',
+        value: 'nombre',
+      },
+      {
+        label: 'Apellido',
+        value: 'apellido',
+      },
+      {
+        label: 'Correo Electronico',
+        value: 'correoElectronico',
+      },
+      {
+        label: 'Rol',
+        value: 'rol',
+      },
+    ];
+
+const search = async () => {
+    try {
+      console.log(criterio.value+" "+texto.value);
+      PersonaService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
 
   function indexLink({ item}: { item: Persona }) {
 
     return (
       <span>
-        <PersonaEntryFormUpdate arguments={item} onPersonaUpdated={dataProvider.refresh}>
+        <PersonaEntryFormUpdate arguments={item} onPersonaUpdated={items.refresh}>
 
           </PersonaEntryFormUpdate>
       </span>
@@ -274,14 +334,38 @@ export default function PersonaView() {
 
       <ViewToolbar title="Lista de personas">
         <Group>
-          <PersonaEntryForm onPersonaCreated={dataProvider.refresh}/>
+          <PersonaEntryForm onPersonaCreated={items.refresh}/>
         </Group>
       </ViewToolbar>
-      <Grid dataProvider={dataProvider.dataProvider}>
-        <GridColumn path="nombre" header="Nombre de la persona" />
-        <GridColumn path="apellido" header="Apellido"></GridColumn>
-        <GridColumn path="correoElectronico" header="Correo" />
-        <GridColumn path="rol" header="Rol" />
+      <HorizontalLayout theme="spacing">
+              <Select items={itemSelect}
+                value={criterio.value}
+                onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+                placeholder="Selecione un cirterio">
+
+
+              </Select>
+
+              <TextField
+                placeholder="Search"
+                style={{ width: '50%' }}
+                value={texto.value}
+                onValueChanged={(evt) => (texto.value = evt.detail.value)}
+              >
+                <Icon slot="prefix" icon="vaadin:search" />
+              </TextField>
+              <Button onClick={search} theme="primary">
+                BUSCAR
+              </Button>
+            </HorizontalLayout>
+
+      <Grid items={items}>
+        <GridSortColumn path="nombre" header="Nombre de la persona"  onDirectionChanged={(e) => order(e, "nombre")} />
+        <GridSortColumn path="apellido" header="Apellido"  onDirectionChanged={(e) => order(e, "apellido")}></GridSortColumn>
+        <GridSortColumn path="correoElectronico" header="Correo"  onDirectionChanged={(e) => order(e, "correoElectronico")} />
+        <GridSortColumn path="rol" header="Rol"  onDirectionChanged={(e) => order(e, "rol")}/>
+
+
         <GridColumn header="Acciones" renderer={indexLink}/>
       </Grid>
     </main>

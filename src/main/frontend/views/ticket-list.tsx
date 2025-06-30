@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout,HorizontalLayout,Icon,Select } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { PersonaService, VehiculoService, TaskService, TicketService, ParqueaderoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -36,20 +36,22 @@ function TicketEntryForm(props: TicketEntryFormProps) {
   const totalPagar = useSignal('');
   const vehiculo = useSignal('');
   const parqueadero = useSignal('');
+  const estadoTicket = useSignal('');
   const createTicket = async () => {
     try {
-      if (horaEntrada.value.trim().length > 0 && tarifa.value.trim().length > 0 && vehiculo.value.trim().length>0) {
+      if ( tarifa.value.trim().length > 0 && vehiculo.value.trim().length>0) {
         const id_vehiculo = parseInt(vehiculo.value) +1;
         const id_parqueadero = parseInt(parqueadero.value) +1;
-        await TicketService.createTicket(horaEntrada.value, parseFloat(tarifa.value), id_vehiculo, id_parqueadero);
+        await TicketService.createTicket( parseFloat(tarifa.value), id_vehiculo, id_parqueadero, estadoTicket.value);
         if (props.onTicketCreated) {
           props.onTicketCreated();
         }
 
-        horaEntrada.value = '';
+
         tarifa.value = '';
         vehiculo.value = '';
         parqueadero.value = '';
+        estadoTicket.value = '';
         dialogOpened.value = false;
         Notification.show('Ticket creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -78,6 +80,13 @@ let listaParqueadero = useSignal<String[]>([]);
     );
   }, []);
 
+let listaEstado = useSignal<String[]>([]);
+  useEffect(() => {
+    TicketService.listEstadoTicket().then(data =>
+      //console.log(data)
+      listaEstado.value = data
+    );
+  }, []);
   const dialogOpened = useSignal(false);
   return (
     <>
@@ -105,18 +114,19 @@ let listaParqueadero = useSignal<String[]>([]);
         }
       >
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <DatePicker
-           label="Fecha de Entrada"
-           placeholder="Seleccione una fecha"
-           aria-label="Seleccione una fecha"
-           value={horaEntrada.value}
-           onValueChanged={(evt) => (horaEntrada.value = evt.detail.value)}
-          />
+
           <NumberField  label="Tarifa"
            placeholder="Ingrese la tarifa por hora"
            aria-label="Tarifa por hora"
            value={tarifa.value}
            onValueChanged={(evt) => (tarifa.value = evt.detail.value)}
+          />
+          <ComboBox label="Estado"
+           items={listaEstado.value}
+           placeholder='Seleccione un Estado'
+           aria-label='Seleccione un Estado'
+           value={estadoTicket.value}
+           onValueChanged={(evt) => (estadoTicket.value = evt.detail.value)}
           />
           <ComboBox label="Vehiculo"
             items={listaVehiculo.value}
@@ -152,6 +162,7 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
 
     const listaVehiculo = useSignal<String[]>([]);
     const listaParqueadero = useSignal<String[]>([]);
+    const listaEstado = useSignal<String[]>([]);
 
     const horaEntrada = useSignal(props.arguments.horaEntrada);
     const horaSalida = useSignal(props.arguments.horaSalida);
@@ -159,7 +170,7 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
     const totalPagar = useSignal(props.arguments.totalPagar);
     const vehiculo = useSignal(props.arguments.vehiculo);
     const parqueadero = useSignal(props.arguments.parqueadero);
-
+    const estadoTicket = useSignal(props.arguments.estadoTicket);
 
     useEffect(() => {
         TicketService.listaAlbumVehiculo().then(data => listaVehiculo.value = data);
@@ -168,23 +179,25 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
     useEffect(() => {
         TicketService.listaAlbumParqueadero().then(data => listaParqueadero.value = data);
        }, []);
-
+    useEffect(() => {
+        TicketService.listEstadoTicket().then(data => listaEstado.value = data);
+       }, []);
   const updateTicket = async () => {
       try {
-        if (horaEntrada.value.trim().length > 0 && tarifa.value.trim().length > 0 && vehiculo.value.trim().length>0) {
+        if (tarifa.value.trim().length > 0 && vehiculo.value.trim().length>0) {
         const id_vehiculo = parseInt(vehiculo.value) + 1;
         const id_parqueadero = parseInt(parqueadero.value) + 1;
-        await TicketService.updateTicket(props.arguments.id,horaEntrada.value,horaSalida.value,parseFloat(tarifa.value),id_persona, id_parqueadero);
+        await TicketService.updateTicket(props.arguments.id,parseFloat(tarifa.value),id_vehiculo, id_parqueadero, estadoTicket.value);
         if (props.arguments.onTicketUpdated) {
             props.arguments.onTicketUpdated();
         }
 
 
-         horaEntrada.value = '';
-         horaSalida.value = '';
+
          tarifa.value = '';
          vehiculo.value = '';
          parqueadero.value = '';
+         estadoTicket.value = '';
         dialogOpened.value = false;
         Notification.show('Ticket actualizado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -244,21 +257,13 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
                         onValueChanged={(evt) => (vehiculo.value = evt.detail.value)}
                         />
 
-             <DatePicker
-                       label="Fecha de Entrada"
-                       placeholder="Seleccione una fecha"
-                       aria-label="Seleccione una fecha"
-                       value={horaEntrada.value}
-                       onValueChanged={(evt) => (horaEntrada.value = evt.detail.value)}
-                      />
-
-              <DatePicker
-                        label="Fecha de Salida"
-                        placeholder="Seleccione una fecha"
-                        aria-label="Seleccione una fecha"
-                        value={horaSalida.value}
-                        onValueChanged={(evt) => (horaSalida.value = evt.detail.value)}
-                       />
+              <ComboBox
+                         label="Estado"
+                         items={listaEstado.value}
+                         placeholder="Seleccione un Estado"
+                         value={estadoTicket.value}
+                         onValueChanged={(evt) => (estadoTicket.value = evt.detail.value)}
+                         />
 
                 <NumberField  label="Tarifa"
                           placeholder="Ingrese la Tarifa"
@@ -310,6 +315,45 @@ const order = (event, columnId) => {
     });
   }
 
+//BUSQUEDA BINARIA-------------------------------------------------------------------------------------
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
+      label: 'Estado',
+      value: 'estadoTicket',
+    },
+    {
+      label: 'Placa',
+      value: 'vehiculo',
+    },
+    {
+        label: 'Parqueadero',
+        value: 'parqueadero',
+    },
+    {
+        label: 'Tarifa',
+        value: 'tarifa',
+    },
+  ];
+const search = async () => {
+    try {
+      console.log(criterio.value+" "+texto.value);
+      TicketService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
 
   function indexLink({ item}: { item: Ticket }) {
 
@@ -340,12 +384,36 @@ const order = (event, columnId) => {
           <TicketEntryForm onTicketCreated={items.refresh}/>
         </Group>
       </ViewToolbar>
-      <Grid items={items}>
+
+     <HorizontalLayout theme="spacing">
+                  <Select items={itemSelect}
+                    value={criterio.value}
+                    onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+                    placeholder="Selecione un criterio">
+                  </Select>
+
+                  <TextField
+                    placeholder="Search"
+                    style={{ width: '50%' }}
+                    value={texto.value}
+                    onValueChanged={(evt) => (texto.value = evt.detail.value)}
+                  >
+                    <Icon slot="prefix" icon="vaadin:search" />
+                  </TextField>
+                 <span>
+                  <Button onClick={search} theme="primary">
+                     BUSCAR
+                  </Button>
+                 </span>
+                </HorizontalLayout>
+
+        <Grid items={items} >
         <GridSortColumn path="horaEntrada" header="Hora de entrada" onDirectionChanged={(e) => order(e, "horaEntrada")} />
         <GridSortColumn path="horaSalida" header="Hora de salida" onDirectionChanged={(e) => order(e, "horaSalida")} />
-        <GridSortColumn path="tarifa" header="Tarifa" onDirectionChanged={(e) => order(e, "tarifa")} ></GridSortColumn>
+        <GridSortColumn path="tarifa" header="Tarifa" resizable width ="10px" onDirectionChanged={(e) => order(e, "tarifa")}  ></GridSortColumn>
+        <GridSortColumn path="estadoTicket" header="Estado" resizable width ="50px" onDirectionChanged={(e) => order(e, "estadoTicket")}  />
         <GridSortColumn path="totalPagar" header="Total a Pagar" onDirectionChanged={(e) => order(e, "totalPagar")}  />
-        <GridSortColumn path="vehiculo" header="Vehiculo" onDirectionChanged={(e) => order(e, "vehiculo")}  />
+        <GridSortColumn path="vehiculo" header="Vehiculo"resizable width ="50px" onDirectionChanged={(e) => order(e, "vehiculo")}  />
          <GridSortColumn path="parqueadero" header="Parqueadero" onDirectionChanged={(e) => order(e, "parqueadero")}  />
 
         <GridColumn header="Acciones" renderer={indexLink}/>
