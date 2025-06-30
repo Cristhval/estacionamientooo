@@ -288,19 +288,16 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
 
 
 //LISTA DE ARTISTAS
-export default function TicketView() {
+    export default function TicketView() {
 
-//   const dataProvider = useDataProvider<Cancion>({
-//     list: () => CancionService.listCancion(),
-//   });
+        const [items, setItems] = useState<any[]>([]);
 
-const [items, setItems] = useState([]);
-  useEffect(() => {
-    TicketService.listTicket().then(function (data) {
-      //items.values = data;
-      setItems(data);
-    });
-  }, []);
+        const cargarTickets = () => {
+            TicketService.listTicket().then((data) => setItems(data ?? []));
+        };
+
+        useEffect(() => { cargarTickets(); }, []);
+
 
 
 const order = (event, columnId) => {
@@ -381,7 +378,7 @@ const search = async () => {
 
       <ViewToolbar title="Lista de Tickets">
         <Group>
-          <TicketEntryForm onTicketCreated={items.refresh}/>
+          <TicketEntryForm onTicketCreated={cargarTickets}/>
         </Group>
       </ViewToolbar>
 

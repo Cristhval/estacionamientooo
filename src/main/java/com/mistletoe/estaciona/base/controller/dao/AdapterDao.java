@@ -85,19 +85,19 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     @Override
     public T get(Integer id) throws Exception {
 
-        System.out.println("esta en el get ");
-        LinkedList<T> list = listAll();
-        return list.get(id);
+//        System.out.println("esta en el get ");
+//        LinkedList<T> list = listAll();
+//        return list.get(id);
       
       
-        //if (!listAll().isEmpty()) {
-            //return BinarySearchRecursive(listAll().toArray(), 0, listAll().getLength() - 1, id);
-        //} else
-            //return null;
+        if (!listAll().isEmpty()) {
+            return BinarySearchRecursive(listAll().toArray(), 0, listAll().getLength() - 1, id);
+        } else
+            return null;
 
     }
 
-    /*public T BinarySearchRecursive(T arr[], int a, int b, Integer id) throws Exception {
+    private T BinarySearchRecursive(T arr[], int a, int b, Integer id) throws Exception {
         if (b < 1) {
             return null;
         }
@@ -115,6 +115,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
 
     private Object getMethod(String attribute, T obj) throws Exception {
         return obj.getClass().getMethod("get" + attribute).invoke(obj);
-    }*/
+    }
 
 }

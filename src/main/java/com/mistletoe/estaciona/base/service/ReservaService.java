@@ -68,7 +68,7 @@ public class ReservaService {
         return lista;
     }
 
-    // ✅ AQUÍ EL MÉTODO QUE FALTABA PARA LAS PLAZAS
+    //  AQUÍ EL MÉTODO QUE FALTABA PARA LAS PLAZAS
     public List<HashMap> listaAlbumPlazas() {
         List<HashMap> lista = new ArrayList<>();
         DaoPlaza daoPlaza = new DaoPlaza();
