@@ -4,6 +4,7 @@ import com.mistletoe.estaciona.base.controller.dao.AdapterDao;
 import com.mistletoe.estaciona.base.controller.data_struct.Utiles;
 import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
 import com.mistletoe.estaciona.base.models.Ticket;
+import org.hibernate.event.spi.SaveOrUpdateEvent;
 
 import java.util.HashMap;
 
@@ -27,6 +28,7 @@ public class DaoTicket extends AdapterDao<Ticket>{
     public Boolean save() {
         try {
             obj.setId(listAll().getLength()+1);
+            System.out.printf("----------aaaa" + obj.getHoraSalida());
             this.persist(obj);
             return true;
         } catch (Exception e) {
@@ -71,8 +73,8 @@ public class DaoTicket extends AdapterDao<Ticket>{
         aux.put("horaSalida",  arreglo.getHoraSalida() !=null? arreglo.getHoraSalida().toString():"");
         aux.put("tarifa", arreglo.getTarifa().toString());
         aux.put("totalPagar", arreglo.getTotalPagar() !=null?  arreglo.getTotalPagar().toString():"");
-        aux.put("vehiculo",dv.get(arreglo.getId_vehiculo()-1).getPlaca());
-        aux.put("parqueadero",da.get(arreglo.getId_parqueadero()-1).getNombre());
+        aux.put("vehiculo",dv.get(arreglo.getId_vehiculo()).getPlaca());
+        aux.put("parqueadero",da.get(arreglo.getId_parqueadero()).getNombre());
         aux.put("estadoTicket", arreglo.getEstadoTicket().toString());
 
 

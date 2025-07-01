@@ -30,10 +30,8 @@ type TicketEntryFormPropsUpdate = ()=> {
 
 //GUARDAR Ticket
 function TicketEntryForm(props: TicketEntryFormProps) {
-  const horaEntrada = useSignal('');
-  const horaSalida = useSignal('');
+
   const tarifa = useSignal('');
-  const totalPagar = useSignal('');
   const vehiculo = useSignal('');
   const parqueadero = useSignal('');
   const estadoTicket = useSignal('');
@@ -164,10 +162,8 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
     const listaParqueadero = useSignal<String[]>([]);
     const listaEstado = useSignal<String[]>([]);
 
-    const horaEntrada = useSignal(props.arguments.horaEntrada);
-    const horaSalida = useSignal(props.arguments.horaSalida);
+
     const tarifa = useSignal(props.arguments.tarifa);
-    const totalPagar = useSignal(props.arguments.totalPagar);
     const vehiculo = useSignal(props.arguments.vehiculo);
     const parqueadero = useSignal(props.arguments.parqueadero);
     const estadoTicket = useSignal(props.arguments.estadoTicket);
@@ -287,7 +283,7 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
 };
 
 
-//LISTA DE ARTISTAS
+//LISTA DE TICKETS
     export default function TicketView() {
 
         const [items, setItems] = useState<any[]>([]);
@@ -298,9 +294,12 @@ const TicketEntryFormUpdate = function(props: TicketEntryFormPropsUpdate){
 
         useEffect(() => { cargarTickets(); }, []);
 
+        const pagarTicket = (id) => {
+            TicketService.calculoAPagar(id);
+            cargarTickets();
+        };
 
-
-const order = (event, columnId) => {
+        const order = (event, columnId) => {
     console.log(event);
     const direction = event.detail.value;
     // Custom logic based on the sorting direction
@@ -359,8 +358,10 @@ const search = async () => {
         <TicketEntryFormUpdate arguments={item} onVehiculoUpdated={items.refresh}>
 
           </TicketEntryFormUpdate>
-          <Button onClick ={()=>TicketService.calculoAPagar(item.id)} > Pagar </Button>
+          <Button onClick  ={()=>pagarTicket(item.id)}  >  Pagar </Button>
       </span>
+
+
     );
   }
 

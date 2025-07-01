@@ -188,8 +188,7 @@ export default function ParqueaderoView() {
       Notification.show('Error al cargar la lista de parqueaderos', { duration: 5000, position: 'top-center', theme: 'error' });
     }
   };
-
-  useEffect(() => {
+      useEffect(() => {
     callData();
   }, []);
 
@@ -222,6 +221,8 @@ export default function ParqueaderoView() {
         <GridSortColumn path="direccion" header="Direccion" />
         <GridColumn header="Acciones" renderer={link} />
       </Grid>
+
     </main>
+
   );
 }
