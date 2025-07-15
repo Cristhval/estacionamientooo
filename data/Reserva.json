@@ -1,1 +1,26 @@
-[{"id":1,"fecha":"May 31, 2025, 7:00:00 PM","horaEntrada":"May 31, 2025, 3:49:00 PM","horaSalida":"May 31, 2025, 4:50:00 PM","idCliente":4,"idPlaza":1},{"id":2,"fecha":"May 31, 2025, 7:00:00 PM","horaEntrada":"May 31, 2025, 3:51:00 PM","horaSalida":"May 31, 2025, 3:51:00 PM","idCliente":2,"idPlaza":1},{"id":3,"fecha":"Jun 2, 2025, 7:00:00 PM","horaEntrada":"Jun 2, 2025, 7:50:00 AM","horaSalida":"Jun 2, 2025, 11:54:00 AM","idCliente":1,"idPlaza":2}]
+[
+    {
+        "id": 1,
+        "fecha": "May 31, 2025, 7:00:00 PM",
+        "horaEntrada": "May 31, 2025, 3:49:00 PM",
+        "horaSalida": "May 31, 2025, 4:50:00 PM",
+        "idCliente": 4,
+        "idPlaza": 1
+    },
+    {
+        "id": 2,
+        "fecha": "May 31, 2025, 7:00:00 PM",
+        "horaEntrada": "May 31, 2025, 3:51:00 PM",
+        "horaSalida": "May 31, 2025, 3:51:00 PM",
+        "idCliente": 2,
+        "idPlaza": 1
+    },
+    {
+        "id": 3,
+        "fecha": "Jun 2, 2025, 7:00:00 PM",
+        "horaEntrada": "Jun 2, 2025, 7:50:00 AM",
+        "horaSalida": "Jun 2, 2025, 11:54:00 AM",
+        "idCliente": 1,
+        "idPlaza": 2
+    }
+]
