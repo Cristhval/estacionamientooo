@@ -26,23 +26,48 @@ public class PersonaService {
     }
 
     public void createPersona(@NotEmpty String nombre, @NotEmpty String apellido,
-                              @NotEmpty String correoElectronico, @NotEmpty String rol) throws Exception{
+                              @NotEmpty String correoElectronico, @NotEmpty String rol, String clave, String usuario) throws Exception{
         da.getObj().setNombre(nombre);
         da.getObj().setApellido(apellido);
         da.getObj().setCorreoElectronico(correoElectronico);
         da.getObj().setRol(RolEnum.valueOf(rol));
+
+        // cambio isaac
+        ///////////////////////////////////////////////////////////////////////////////
+        /// 
+        
+        da.getObj().setUsuario(usuario);
+        da.getObj().setClave(clave);
+
+        /// 
+        /// ///////////////////////////////////////////////////////////////////////////////
+
+
         if(!da.save())
             throw new  Exception("No se pudo guardar los datos de persona");
     }
 
     public void updatePersona( Integer id, @NotEmpty String nombre,
                                @NotEmpty String apellido,@NotEmpty String correoElectronico,
-                               @NotEmpty String rol) throws Exception{
+                               @NotEmpty String rol,
+                               String clave,
+                               String usuario) throws Exception{
         da.setObj(da.listAll().get(id-1));
         da.getObj().setNombre(nombre);
         da.getObj().setApellido(apellido);
         da.getObj().setCorreoElectronico(correoElectronico);
         da.getObj().setRol(RolEnum.valueOf(rol));
+
+        // cambio isaac
+        ///////////////////////////////////////////////////////////////////////////////
+        /// 
+        
+        da.getObj().setUsuario(usuario);
+        da.getObj().setClave(clave);
+
+        /// 
+        /// ///////////////////////////////////////////////////////////////////////////////
+
         if(!da.update(id - 1))
             throw new  Exception("No se pudo modificar los datos de la persona");
     }

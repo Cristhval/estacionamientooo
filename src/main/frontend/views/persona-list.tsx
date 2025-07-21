@@ -1,5 +1,7 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout, GridSortColumn, HorizontalLayout,Icon,Select } from '@vaadin/react-components';
+
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, PasswordField, TextField, VerticalLayout, GridSortColumn, HorizontalLayout,Icon,Select } from '@vaadin/react-components';
+
 import { Notification } from '@vaadin/react-components/Notification';
 import { PersonaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -34,11 +36,22 @@ function PersonaEntryForm(props: PersonaEntryFormProps) {
   const apellido = useSignal('');
   const correoElectronico = useSignal('');
   const rol = useSignal('');
+
+
+  // cambio de isaac
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  const usuario = useSignal('');
+  const clave = useSignal('');
+
+  //////////////////////////////////////////////////////////////////////////////////////
+
+
   const createPersona = async () => {
     try {
       if (nombre.value.trim().length > 0 && apellido.value.trim().length > 0
-       && correoElectronico.value.trim().length > 0)  {
-        await PersonaService.createPersona(nombre.value, apellido.value,correoElectronico.value, rol.value);
+       && correoElectronico.value.trim().length > 0, usuario.value.trim().length > 0, clave.value.length > 0)  {
+        await PersonaService.createPersona(nombre.value, apellido.value,correoElectronico.value, rol.value, clave.value, usuario.value);
         if (props.onPersonaCreated) {
           props.onPersonaCreated();
         }
@@ -46,6 +59,12 @@ function PersonaEntryForm(props: PersonaEntryFormProps) {
         apellido.value = '';
         correoElectronico.value = '';
         rol.value = '';
+
+        // cambio de isaac
+        //////////////////////////////////////////////////////////////////////////////////////
+        usuario.value = '';
+        clave.value = '';
+
         dialogOpened.value = false;
         Notification.show('Persona creada', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -85,7 +104,7 @@ let listaRol = useSignal<String[]>([]);
                 dialogOpened.value = false;
               }}
             >
-              Candelar
+              Cancelar
             </Button>
             <Button onClick={createPersona} theme="primary">
               Registrar
@@ -114,13 +133,36 @@ let listaRol = useSignal<String[]>([]);
            onValueChanged={(evt) => (correoElectronico.value = evt.detail.value)}
           />
 
-             <ComboBox label="Rol"
-             items={listaRol.value}
-             placeholder='Seleccione un tipo de archivo'
-             aria-label='Seleccione un tipo de archivo de la lista'
-             value={rol.value}
-             onValueChanged={(evt) => (rol.value = evt.detail.value)}
-             />
+          <ComboBox label="Rol"
+            items={listaRol.value}
+            placeholder='Seleccione un tipo de archivo'
+            aria-label='Seleccione un tipo de archivo de la lista'
+            value={rol.value}
+            onValueChanged={(evt) => (rol.value = evt.detail.value)}
+          />
+
+
+
+          {/* // cambio de isaac
+          ////////////////////////////////////////////////////////////////////////////////////// */}
+
+          <TextField label="usuario"
+            placeholder="Ingrese El usuario"
+            aria-label="usuario"
+            value={usuario.value}
+            onValueChanged={(evt) => (usuario.value = evt.detail.value)}
+          />
+
+          <PasswordField label="clave"
+            placeholder="Ingrese su clave"
+            aria-label="clave"
+            value={clave.value}
+            onValueChanged={(evt) => (clave.value = evt.detail.value)}
+          />
+
+          {/*//////////////////////////////////////////////////////////////////////////////////////*/}
+
+
         </VerticalLayout>
       </Dialog>
       <Button
@@ -143,11 +185,22 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
   const apellido = useSignal(props.arguments.apellido);
   const correoElectronico = useSignal(props.arguments.correoElectronico);
   const rol = useSignal(props.arguments.rol);
+
+  // cambio de isaac
+  //////////////////////////////////////////////////////////////////////////////////////
+
+  const usuario = useSignal(props.arguments.usuario);
+  const clave = useSignal(props.arguments.clave);
+
+  //////////////////////////////////////////////////////////////////////////////////////
+
   const createPersona = async () => {
     try {
       if (nombre.value.trim().length > 0 && apellido.value.trim().length > 0
-                 && correoElectronico.value.trim().length > 0) {
-        await PersonaService.updatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value);
+
+                 && correoElectronico.value.trim().length > 0) {         
+        await PersonaService.updatePersona(props.arguments.id, nombre.value, apellido.value, correoElectronico.value, rol.value, clave.value, usuario.value);
+
         if (props.arguments.onPersonaUpdated) {
           props.arguments.onPersonaUpdated();
         }
@@ -155,6 +208,15 @@ const PersonaEntryFormUpdate = function(props: PersonaEntryFormPropsUpdate){
         apellido.value = '';
         correoElectronico.value = '';
         rol.value = '';
+
+        // cambio de isaac
+        //////////////////////////////////////////////////////////////////////////////////////
+
+        usuario.value = '';
+        clave.value = '';
+
+        //////////////////////////////////////////////////////////////////////////////////////
+
         dialogOpened.value = false;
         Notification.show('Persona actualizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -195,7 +257,7 @@ let listaRol = useSignal<String[]>([]);
               Cancelar
             </Button>
             <Button onClick={createPersona} theme="primary">
-              Registrar
+              Actualizar
             </Button>
 
           </>
@@ -229,6 +291,26 @@ let listaRol = useSignal<String[]>([]);
                defaultValue={rol.value}
                onValueChanged={(evt) => (rol.value = evt.detail.value)}
            />
+
+          {/* // cambio de isaac
+          ////////////////////////////////////////////////////////////////////////////////////// */}
+
+          <TextField label="usuario"
+            placeholder="Ingrese El usuario"
+            aria-label="usuario"
+            value={usuario.value}
+            onValueChanged={(evt) => (usuario.value = evt.detail.value)}
+          />
+
+          <PasswordField label="clave"
+            placeholder="Ingrese su clave"
+            aria-label="clave"
+            value={clave.value}
+            onValueChanged={(evt) => (clave.value = evt.detail.value)}
+          />
+
+          {/*//////////////////////////////////////////////////////////////////////////////////////*/}
+
         </VerticalLayout>
       </Dialog>
       <Button
@@ -313,7 +395,9 @@ const search = async () => {
 
     return (
       <span>
-        <PersonaEntryFormUpdate arguments={item} onPersonaUpdated={items.refresh}>
+
+        <PersonaEntryFormUpdate arguments={item} onPersonaUpdated={dataProvider.refresh} >
+
 
           </PersonaEntryFormUpdate>
       </span>
@@ -334,7 +418,9 @@ const search = async () => {
 
       <ViewToolbar title="Lista de personas">
         <Group>
-          <PersonaEntryForm onPersonaCreated={items.refresh}/>
+
+          <PersonaEntryForm onPersonaCreated={dataProvider.refresh} />
+
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
