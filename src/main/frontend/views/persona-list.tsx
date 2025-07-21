@@ -333,11 +333,17 @@ export default function PersonaView() {
 
 const [items, setItems] = useState([]);
   useEffect(() => {
-    PersonaService.listPersona().then(function (data) {
-      //items.values = data;
+    callData()
+    
+  }, []);
+
+
+
+  const callData = () => {
+    PersonaService.listAll().then(function (data) {
       setItems(data);
     });
-  }, []);
+  };
 
 const order = (event, columnId) => {
     console.log(event);
@@ -396,7 +402,7 @@ const search = async () => {
     return (
       <span>
 
-        <PersonaEntryFormUpdate arguments={item} onPersonaUpdated={dataProvider.refresh} >
+        <PersonaEntryFormUpdate arguments={item}  >
 
 
           </PersonaEntryFormUpdate>
@@ -419,7 +425,7 @@ const search = async () => {
       <ViewToolbar title="Lista de personas">
         <Group>
 
-          <PersonaEntryForm onPersonaCreated={dataProvider.refresh} />
+          <PersonaEntryForm onPersonaCreated={callData}/>
 
         </Group>
       </ViewToolbar>
