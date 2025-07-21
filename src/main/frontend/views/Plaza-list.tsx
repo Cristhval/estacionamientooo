@@ -12,11 +12,11 @@ import { useEffect, useState } from 'react';
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn';
 
 export const config: ViewConfig = {
-  title: 'Plazas',
+  title: 'Plaza',
   menu: {
     icon: 'vaadin:clipboard-check',
     order: 6,
-    title: 'Plazas',
+    title: 'Plaza',
   },
 };
 

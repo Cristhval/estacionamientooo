@@ -8,7 +8,6 @@ public class Plaza {
     private Integer idParqueadero;
     private EstadoEnum estado;
 
-
     public Integer getId() {
         return id;
     }

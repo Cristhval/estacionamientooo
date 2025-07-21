@@ -11,6 +11,7 @@ public class Ticket {
     private Double totalPagar;
     private Integer id_vehiculo;
     private Integer id_parqueadero;
+    private EstadoTicketEnum estadoTicket;
 
     public Integer getId() {
         return id;
@@ -66,5 +67,13 @@ public class Ticket {
 
     public void setId_parqueadero(Integer id_parqueadero) {
         this.id_parqueadero = id_parqueadero;
+    }
+
+    public EstadoTicketEnum getEstadoTicket() {
+        return estadoTicket;
+    }
+
+    public void setEstadoTicket(EstadoTicketEnum estadoTicket) {
+        this.estadoTicket = estadoTicket;
     }
 }

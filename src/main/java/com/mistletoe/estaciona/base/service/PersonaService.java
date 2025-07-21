@@ -1,6 +1,7 @@
 package com.mistletoe.estaciona.base.service;
 
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoPersona;
+import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
 import com.mistletoe.estaciona.base.models.Persona;
 import com.mistletoe.estaciona.base.models.RolEnum;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @BrowserCallable
@@ -77,6 +79,12 @@ public class PersonaService {
         return (List<Persona>)Arrays.asList(da.listAll().toArray());
     }
 
+    public List<HashMap> listPersona() throws Exception {
+        LinkedList<HashMap<String, String>> lista = da.all(da.listAll());
+        return Arrays.asList(lista.toArray());
+
+    }
+
     public List<String> listRolPersona() {
         List<String> lista = new ArrayList<>();
         for(RolEnum r: RolEnum.values()) {
@@ -84,5 +92,26 @@ public class PersonaService {
         }
         return lista;
     }
+
+    public List<HashMap> order(String atributo, Integer type) throws Exception {
+        System.out.println(atributo + "  " + type);
+        return switch (atributo.toLowerCase()){
+            case "nombre" -> Arrays.asList(da.orderName(type).toArray());
+            case "apellido" -> Arrays.asList(da.orderApellido(type).toArray());
+            case "correoElectronico" -> Arrays.asList(da.orderCorreo(type).toArray());
+            case "rol" -> Arrays.asList(da.orderRol(type).toArray());
+            default -> Arrays.asList((HashMap) listPersona());
+
+        };
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, String>> lista = da.search(attribute, text, type);
+        if(!lista.isEmpty())
+            return Arrays.asList(lista.toArray());
+        else
+            return new ArrayList<>();
+    }
+
 
 }
