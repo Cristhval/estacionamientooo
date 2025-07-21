@@ -22,6 +22,8 @@ public class LoginView extends Composite<LoginOverlay>{
             try {
                 DaoUsuario du = new DaoUsuario();
                 HashMap<String, Object> mapa = du.login(event.getUsername(), event.getPassword());
+
+
                 if (mapa != null) {
                     System.out.println("INICIO SESION CORRECTAMENTE");
                     System.out.println("El rol es: " + mapa.get("rol"));
