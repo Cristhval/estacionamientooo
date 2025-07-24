@@ -32,6 +32,7 @@ public class ReservaService {
             daoReserva.getObj().setFecha(fecha);
             daoReserva.getObj().setHoraEntrada(java.util.Date.from(horaEntrada.atZone(java.time.ZoneId.systemDefault()).toInstant()));
             daoReserva.getObj().setHoraSalida(java.util.Date.from(horaSalida.atZone(java.time.ZoneId.systemDefault()).toInstant()));
+            daoReserva.getObj().setEliminado(false);
             daoReserva.getObj().setIdCliente(idCliente);
             daoReserva.getObj().setIdPlaza(idPlaza);
             if (!daoReserva.save())
@@ -52,14 +53,14 @@ public void updateReserva(Integer id, @NotNull Date fecha, @NotNull LocalDateTim
         reserva.setHoraSalida(java.util.Date.from(horaSalida.atZone(java.time.ZoneId.systemDefault()).toInstant()));
         reserva.setIdCliente(idCliente);
         reserva.setIdPlaza(idPlaza);
-        if (!daoReserva.update(reserva, id))
+        if (!daoReserva.updateReserva(reserva, id))
             throw new Exception("No se pudo modificar los datos de la Reserva");
     }
 }
 
 public void deleteReserva(Integer id) throws Exception {
     if (id == null || id <= 0) {
-        throw new Exception("ID inválido para eliminar la reserva");
+        throw new Exception("ID invalido para eliminar la reserva");
     }
     if (!daoReserva.delete(id)) {
         throw new Exception("No se pudo eliminar la reserva con ID: " + id);
@@ -105,7 +106,9 @@ public void deleteReserva(Integer id) throws Exception {
             Reserva[] arreglo = daoReserva.listAll().toArray();
             for (Reserva reserva : arreglo) {
                 try {
-                    lista.add(daoReserva.toDict(reserva));
+                    if (!reserva.getEliminado()){//mientras sea false
+                        lista.add(daoReserva.toDict(reserva));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

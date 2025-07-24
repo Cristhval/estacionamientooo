@@ -36,9 +36,9 @@ public class DaoReserva extends AdapterDao<Reserva> {
         }
     }
 
-    public Boolean update(Reserva obj, Integer id) {
+    public Boolean updateReserva(Reserva obj, Integer id) {
         try {
-            update_by_id(obj, id);
+            this.update_by_id(obj, id);
             return true;
         } catch (Exception e) {
             return false;
@@ -47,7 +47,21 @@ public class DaoReserva extends AdapterDao<Reserva> {
 
      public Boolean delete(Integer id) {
         try {
-            delete_by_id(id);
+            for (Reserva nn: listAll().toArray()) {
+                if (id.equals(nn.getId())) {
+                    nn.setEliminado(true);
+                    updateReserva(nn, id);
+                    break;
+                }
+            }
+            //for (int i = 1; i < listAll().getLength() + 1; i++) {
+                //System.out.println(listAll().get(i));
+            //}
+            //System.out.println(listAll().get(id)+"iddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+            //this.listAll().get(id).setEliminado(true);//eliminado logico
+            //System.out.println(listAll().get(id).getId() + " eliminado");
+
+            //delete_by_id(id);elimina en json
             return true;
         } catch (Exception e) {
             return false;
