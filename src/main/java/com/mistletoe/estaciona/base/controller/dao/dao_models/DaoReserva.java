@@ -36,9 +36,18 @@ public class DaoReserva extends AdapterDao<Reserva> {
         }
     }
 
-    public Boolean update(Integer pos) {
+    public Boolean update(Reserva obj, Integer id) {
         try {
-            this.update(obj, pos);
+            update_by_id(obj, id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+     public Boolean delete(Integer id) {
+        try {
+            delete_by_id(id);
             return true;
         } catch (Exception e) {
             return false;
