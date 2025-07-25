@@ -32,6 +32,7 @@ public class VehiculoService {
             dv.getObj().setPlaca(placa);
             dv.getObj().setMarca(marca);
             dv.getObj().setModelo(modelo);
+            dv.getObj().setEliminado(false);
             dv.getObj().setColor(color);
             dv.getObj().setId_Persona(id_persona);
             if(!dv.save())
@@ -76,19 +77,29 @@ public class VehiculoService {
         if(!dv.listAll().isEmpty()) {
             Vehiculo [] arreglo = dv.listAll().toArray();
             for(int i = 0; i < arreglo.length; i++) {
-
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));
-                aux.put("placa", arreglo[i].getPlaca());
-                aux.put("marca", arreglo[i].getMarca());
-                aux.put("modelo", arreglo[i].getModelo());
-                aux.put("color", arreglo[i].getColor());
-                aux.put("persona", new DaoPersona().listAll().get(arreglo[i].getId_persona() -1).getNombre());
-                aux.put("id_persona", new DaoPersona().listAll().get(arreglo[i].getId_persona()-1).getId().toString());
-                lista.add(aux);
+                if (!arreglo[i].getEliminado()) {
+                    HashMap<String, String> aux = new HashMap<>();
+                    aux.put("id", arreglo[i].getId().toString(i));
+                    aux.put("placa", arreglo[i].getPlaca());
+                    aux.put("marca", arreglo[i].getMarca());
+                    aux.put("modelo", arreglo[i].getModelo());
+                    aux.put("color", arreglo[i].getColor());
+                    aux.put("persona", new DaoPersona().listAll().get(arreglo[i].getId_persona() -1).getNombre());
+                    aux.put("id_persona", new DaoPersona().listAll().get(arreglo[i].getId_persona()-1).getId().toString());
+                    lista.add(aux);
+                }
             }
         }
         return lista;
+    }
+
+    public void deleteVehiculo(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID invalido para eliminar el vehiculo");
+        }
+        if (!dv.delete(id)) {
+            throw new Exception("No se pudo eliminar el vehiculo con ID: " + id);
+        }
     }
 
     public List<HashMap> order(String atributo, Integer type) throws Exception {

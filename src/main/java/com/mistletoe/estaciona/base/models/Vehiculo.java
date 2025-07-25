@@ -7,6 +7,7 @@ public class Vehiculo {
     private String modelo;
     private String color;
     private Integer id_persona;
+    private Boolean eliminado;
 
 
     public Integer getId() {
@@ -56,5 +57,13 @@ public class Vehiculo {
 
     public void setId_Persona(Integer id_Persona) {
         this.id_persona = id_Persona;
+    }
+
+    public Boolean getEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(Boolean elimnado) {
+        this.eliminado = elimnado;
     }
 }

@@ -1,1 +1,29 @@
-[{"id":1,"placa":"BDC-123","marca":"Hyundai12","modelo":"Hyundai","color":"Rojo","id_persona":1},{"id":2,"placa":"ADC-123","marca":"Porch","modelo":"pocg","color":"verde","id_persona":4},{"id":3,"placa":"CDC-122","marca":"pocg","modelo":"Porch","color":"verde","id_persona":2}]
+[
+  {
+    "id":1 ,
+    "placa":"BDC-123" ,
+    "marca":"Hyundai12" ,
+    "modelo":"Hyundai" ,
+    "color":"Rojo" ,
+    "id_persona":1 ,
+    "eliminado":false
+  } ,
+  {
+    "id":1 ,
+    "placa":"CCC-122" ,
+    "marca":"Hyundai12" ,
+    "modelo":"Hyundai" ,
+    "color":"Rojo" ,
+    "id_persona":1 ,
+    "eliminado":false
+  } ,
+  {
+    "id":2 ,
+    "placa":"ADC-123" ,
+    "marca":"Porch" ,
+    "modelo":"pocg" ,
+    "color":"verde" ,
+    "id_persona":4 ,
+    "eliminado":true
+  }
+]

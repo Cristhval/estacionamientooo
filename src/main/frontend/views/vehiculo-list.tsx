@@ -1,7 +1,7 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout,HorizontalLayout,Icon, Select } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { PersonaService, VehiculoService, TaskService } from 'Frontend/generated/endpoints';
+import {PersonaService, VehiculoService, TaskService, TicketService} from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
@@ -273,6 +273,11 @@ const [items, setItems] = useState([]);
     });
   }, []);
 
+    const deleteVehiculo = (id) => {
+        VehiculoService.deleteVehiculo(id);
+
+    };
+
 
 const order = (event, columnId) => {
     console.log(event);
@@ -336,6 +341,8 @@ const order = (event, columnId) => {
         <VehiculoEntryFormUpdate arguments={item} onVehiculoUpdated={items.refresh}>
 
           </VehiculoEntryFormUpdate>
+
+          <Button onClick  ={()=>deleteVehiculo(item.id)}  >  BORRAR</Button>
       </span>
     );
   }

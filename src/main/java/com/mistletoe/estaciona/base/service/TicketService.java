@@ -37,6 +37,7 @@ public class TicketService {
             daoTicket.getObj().setTarifa(tarifa);
             daoTicket.getObj().setId_vehiculo(id_vehiculo);
             daoTicket.getObj().setId_parqueadero(id_parqueadero);
+            daoTicket.getObj().setEliminado(false);
             daoTicket.getObj().setEstadoTicket(EstadoTicketEnum.valueOf(estadoTicket));
             if(!daoTicket.save())
                 throw new  Exception("No se pudo guardar los datos del Ticket");
@@ -65,10 +66,12 @@ public class TicketService {
         if(!daoVehiculo.listAll().isEmpty()) {
             Vehiculo[] arreglo = daoVehiculo.listAll().toArray();
             for(int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getPlaca());
-                lista.add(aux);
+                if (!arreglo[i].getEliminado()){
+                    HashMap<String, String> aux = new HashMap<>();
+                    aux.put("value", arreglo[i].getId().toString(i));
+                    aux.put("label", arreglo[i].getPlaca());
+                    lista.add(aux);
+                }
             }
         }
         return lista;
@@ -97,22 +100,34 @@ public class TicketService {
         if(!daoTicket.listAll().isEmpty()) {
             Ticket[] arreglo = daoTicket.listAll().toArray();
             for(int i = 0; i < arreglo.length; i++) {
+                if (!arreglo[i].getEliminado()){
+                    HashMap<String, String> aux = new HashMap<>();
+                    aux.put("id", arreglo[i].getId().toString(i));
+                    aux.put("horaEntrada", arreglo[i].getHoraEntrada().toString());
+                    aux.put("horaSalida",  arreglo[i].getHoraSalida() !=null? arreglo[i].getHoraSalida().toString():null);
+                    aux.put("tarifa", arreglo[i].getTarifa().toString());
+                    aux.put("totalPagar", arreglo[i].getTotalPagar() !=null?  arreglo[i].getTotalPagar().toString():null);
+                    aux.put("vehiculo", new DaoVehiculo().listAll().get(arreglo[i].getId_vehiculo() -1).getPlaca());
+                    aux.put("id_vehiculo", new DaoVehiculo().listAll().get(arreglo[i].getId_vehiculo()-1).getId().toString());
+                    aux.put("parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero() -1).getNombre());
+                    aux.put("id_parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero()-1).getId().toString());
+                    aux.put("estadoTicket", String.valueOf(arreglo[i].getEstadoTicket()));
+                    lista.add(aux);
+                }
 
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));
-                aux.put("horaEntrada", arreglo[i].getHoraEntrada().toString());
-                aux.put("horaSalida",  arreglo[i].getHoraSalida() !=null? arreglo[i].getHoraSalida().toString():null);
-                aux.put("tarifa", arreglo[i].getTarifa().toString());
-                aux.put("totalPagar", arreglo[i].getTotalPagar() !=null?  arreglo[i].getTotalPagar().toString():null);
-                aux.put("vehiculo", new DaoVehiculo().listAll().get(arreglo[i].getId_vehiculo() -1).getPlaca());
-                aux.put("id_vehiculo", new DaoVehiculo().listAll().get(arreglo[i].getId_vehiculo()-1).getId().toString());
-                aux.put("parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero() -1).getNombre());
-                aux.put("id_parqueadero", new DaoParqueadero().listAll().get(arreglo[i].getId_parqueadero()-1).getId().toString());
-                aux.put("estadoTicket", String.valueOf(arreglo[i].getEstadoTicket()));
-                lista.add(aux);
             }
         }
         return lista;
+    }
+
+
+    public void deleteTicket(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID invalido para eliminar el TICKET");
+        }
+        if (!daoTicket.delete(id)) {
+            throw new Exception("No se pudo eliminar El ticket con ID: " + id);
+        }
     }
 
     private Integer calculoTiempo(@NotNull Integer id, @NotNull Date horaSalida){

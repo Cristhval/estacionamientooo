@@ -12,6 +12,8 @@ public class Ticket {
     private Integer id_vehiculo;
     private Integer id_parqueadero;
     private EstadoTicketEnum estadoTicket;
+    private Boolean eliminado;
+
 
     public Integer getId() {
         return id;
@@ -75,5 +77,13 @@ public class Ticket {
 
     public void setEstadoTicket(EstadoTicketEnum estadoTicket) {
         this.estadoTicket = estadoTicket;
+    }
+
+    public Boolean getEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(Boolean elimnado) {
+        this.eliminado = elimnado;
     }
 }

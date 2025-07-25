@@ -3,6 +3,7 @@ package com.mistletoe.estaciona.base.controller.dao.dao_models;
 import com.mistletoe.estaciona.base.controller.dao.AdapterDao;
 import com.mistletoe.estaciona.base.controller.data_struct.Utiles;
 import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
+import com.mistletoe.estaciona.base.models.Reserva;
 import com.mistletoe.estaciona.base.models.Ticket;
 import org.hibernate.event.spi.SaveOrUpdateEvent;
 
@@ -81,6 +82,30 @@ public class DaoTicket extends AdapterDao<Ticket>{
 
 
         return aux;
+    }
+
+
+    public Boolean delete(Integer id) {
+        try {
+            for (Ticket nn: listAll().toArray()) {
+                if (id.equals(nn.getId())) {
+                    nn.setEliminado(true);
+                    update(nn, id);
+                    break;
+                }
+            }
+            //for (int i = 1; i < listAll().getLength() + 1; i++) {
+            //System.out.println(listAll().get(i));
+            //}
+            //System.out.println(listAll().get(id)+"iddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+            //this.listAll().get(id).setEliminado(true);//eliminado logico
+            //System.out.println(listAll().get(id).getId() + " eliminado");
+
+            //delete_by_id(id);elimina en json
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     //ORDEN POR HORA DE ENTRADA
