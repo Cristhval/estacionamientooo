@@ -2,7 +2,7 @@ import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, Notification, VerticalLayout } from '@vaadin/react-components';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import { useEffect, useState } from 'react';
-import { ReservaService } from 'Frontend/generated/endpoints';
+import {ReservaService, TicketService} from 'Frontend/generated/endpoints';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 
@@ -214,6 +214,24 @@ export default function ReservaView() {
     ReservaService.listReserva().then((data) => setItems(data ?? []));
   };
 
+  const deleteReserva = (id) => {
+    ReservaService.deleteReserva(id);
+
+  };
+
+  function indexLink({ item}: { item: void }) {
+
+    return (
+        <span>
+          <ReservaEntryFormUpdate item={item} onReservaUpdated={cargarReservas} />
+
+          <Button onClick  ={()=>deleteReserva(item.id)}  >  BORRAR</Button>
+      </span>
+
+
+    );
+  }
+
   useEffect(() => { cargarReservas(); }, []);
 
   return (
@@ -231,7 +249,7 @@ export default function ReservaView() {
         <GridColumn path="horaSalida" header="Hora Salida" />
         <GridColumn path="cliente" header="Cliente" />
         <GridColumn path="plaza" header="Plaza" />
-        <GridColumn header="Acciones" renderer={({ item }) => <ReservaEntryFormUpdate item={item} onReservaUpdated={cargarReservas} />} />
+        <GridColumn header="Acciones" renderer={indexLink} />
       </Grid>
     </main>
   );

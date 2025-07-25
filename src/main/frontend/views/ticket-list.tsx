@@ -351,6 +351,12 @@ const search = async () => {
     }
   };
 
+
+ const deleteTicket = (id) => {
+    TicketService.deleteTicket(id);
+
+ };
+
   function indexLink({ item}: { item: Ticket }) {
 
     return (
@@ -359,6 +365,8 @@ const search = async () => {
 
           </TicketEntryFormUpdate>
           <Button onClick  ={()=>pagarTicket(item.id)}  >  Pagar </Button>
+
+          <Button onClick  ={()=>deleteTicket(item.id)}  >  BORRAR</Button>
       </span>
 
 
@@ -409,12 +417,12 @@ const search = async () => {
         <GridSortColumn path="horaEntrada" header="Hora de entrada" onDirectionChanged={(e) => order(e, "horaEntrada")} />
         <GridSortColumn path="horaSalida" header="Hora de salida" onDirectionChanged={(e) => order(e, "horaSalida")} />
         <GridSortColumn path="tarifa" header="Tarifa" resizable width ="10px" onDirectionChanged={(e) => order(e, "tarifa")}  ></GridSortColumn>
-        <GridSortColumn path="estadoTicket" header="Estado" resizable width ="50px" onDirectionChanged={(e) => order(e, "estadoTicket")}  />
-        <GridSortColumn path="totalPagar" header="Total a Pagar" onDirectionChanged={(e) => order(e, "totalPagar")}  />
-        <GridSortColumn path="vehiculo" header="Vehiculo"resizable width ="50px" onDirectionChanged={(e) => order(e, "vehiculo")}  />
+        <GridSortColumn path="estadoTicket" header="Estado" resizable width ="20px" onDirectionChanged={(e) => order(e, "estadoTicket")}  />
+        <GridSortColumn path="totalPagar" header="Total a Pagar" onDirectionChanged={(e) => order(e, "totalPagar")} width="15px" />
+        <GridSortColumn path="vehiculo" header="Vehiculo"resizable width ="20px" onDirectionChanged={(e) => order(e, "vehiculo")}  />
          <GridSortColumn path="parqueadero" header="Parqueadero" onDirectionChanged={(e) => order(e, "parqueadero")}  />
 
-        <GridColumn header="Acciones" renderer={indexLink}/>
+        <GridColumn header="Acciones"  resizable width ="200px" renderer={indexLink}/>
 
       </Grid>
     </main>
