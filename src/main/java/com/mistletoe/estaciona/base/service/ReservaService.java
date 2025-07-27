@@ -40,34 +40,31 @@ public class ReservaService {
         }
     }
 
-
-public void updateReserva(Integer id, @NotNull Date fecha, @NotNull LocalDateTime horaEntrada,
-        @NotNull LocalDateTime horaSalida, Integer idCliente, Integer idPlaza) throws Exception {
-    if (fecha != null && horaEntrada != null && horaSalida != null && idCliente > 0 && idPlaza > 0) {
-        Reserva reserva = daoReserva.get(id);
-        if (reserva == null) {
-            throw new Exception("No se encontró la reserva con ID: " + id);
+    public void updateReserva(Integer id, @NotNull Date fecha, @NotNull LocalDateTime horaEntrada,
+            @NotNull LocalDateTime horaSalida, Integer idCliente, Integer idPlaza) throws Exception {
+        if (fecha != null && horaEntrada != null && horaSalida != null && idCliente > 0 && idPlaza > 0) {
+            Reserva reserva = daoReserva.get(id);
+            if (reserva == null) {
+                throw new Exception("No se encontró la reserva con ID: " + id);
+            }
+            reserva.setFecha(fecha);
+            reserva.setHoraEntrada(java.util.Date.from(horaEntrada.atZone(java.time.ZoneId.systemDefault()).toInstant()));
+            reserva.setHoraSalida(java.util.Date.from(horaSalida.atZone(java.time.ZoneId.systemDefault()).toInstant()));
+            reserva.setIdCliente(idCliente);
+            reserva.setIdPlaza(idPlaza);
+            if (!daoReserva.updateReserva(reserva, id))
+                throw new Exception("No se pudo modificar los datos de la Reserva");
         }
-        reserva.setFecha(fecha);
-        reserva.setHoraEntrada(java.util.Date.from(horaEntrada.atZone(java.time.ZoneId.systemDefault()).toInstant()));
-        reserva.setHoraSalida(java.util.Date.from(horaSalida.atZone(java.time.ZoneId.systemDefault()).toInstant()));
-        reserva.setIdCliente(idCliente);
-        reserva.setIdPlaza(idPlaza);
-        if (!daoReserva.updateReserva(reserva, id))
-            throw new Exception("No se pudo modificar los datos de la Reserva");
     }
-}
 
-public void deleteReserva(Integer id) throws Exception {
-    if (id == null || id <= 0) {
-        throw new Exception("ID invalido para eliminar la reserva");
+    public void deleteReserva(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID invalido para eliminar la reserva");
+        }
+        if (!daoReserva.delete(id)) {
+            throw new Exception("No se pudo eliminar la reserva con ID: " + id);
+        }
     }
-    if (!daoReserva.delete(id)) {
-        throw new Exception("No se pudo eliminar la reserva con ID: " + id);
-    }
-}
-
-
 
     public List<HashMap> listaAlbumClientes() {
         List<HashMap> lista = new ArrayList<>();
@@ -84,7 +81,6 @@ public void deleteReserva(Integer id) throws Exception {
         return lista;
     }
 
-    //  AQUÍ EL MÉTODO QUE FALTABA PARA LAS PLAZAS
     public List<HashMap> listaAlbumPlazas() {
         List<HashMap> lista = new ArrayList<>();
         DaoPlaza daoPlaza = new DaoPlaza();
@@ -106,7 +102,7 @@ public void deleteReserva(Integer id) throws Exception {
             Reserva[] arreglo = daoReserva.listAll().toArray();
             for (Reserva reserva : arreglo) {
                 try {
-                    if (!reserva.getEliminado()){//mientras sea false
+                    if (!reserva.getEliminado()) {
                         lista.add(daoReserva.toDict(reserva));
                     }
                 } catch (Exception e) {
@@ -117,5 +113,27 @@ public void deleteReserva(Integer id) throws Exception {
         return lista;
     }
 
+    // MÉTODO DE BÚSQUEDA FILTRADA
+    public List<HashMap> search(String criteria, String text) {
+        List<HashMap> result = new ArrayList<>();
+        if (criteria == null || text == null || criteria.isBlank() || text.isBlank()) {
+            return listReserva(); // retorna todos si no se filtra
+        }
 
+        try {
+            for (Reserva reserva : daoReserva.listAll().toArray()) {
+                if (reserva.getEliminado()) continue;
+
+                HashMap<String, String> map = daoReserva.toDict(reserva);
+                String valor = map.get(criteria);
+                if (valor != null && valor.toLowerCase().contains(text.toLowerCase())) {
+                    result.add(map);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }

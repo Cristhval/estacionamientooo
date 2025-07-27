@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoParqueadero;
 import com.mistletoe.estaciona.base.models.Parqueadero;
+import java.util.stream.Collectors; // Asegúrate de importar esto si no está
 
 @BrowserCallable
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -44,9 +45,9 @@ public class PlazaService {
                             @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
                             @NotEmpty String estado) throws Exception {
         if (codigo.trim().isEmpty() || plazasTotales == null || plazasTotales <= 0 ||
-            plazasDisponibles == null || plazasDisponibles < 0 ||
-            idParqueadero == null || idParqueadero <= 0 ||
-            estado.trim().isEmpty()) {
+                plazasDisponibles == null || plazasDisponibles < 0 ||
+                idParqueadero == null || idParqueadero <= 0 ||
+                estado.trim().isEmpty()) {
             throw new Exception("Datos de la plaza incompletos o invalidos.");
         }
         this.daoPlaza.getObj().setCodigo(codigo);
@@ -63,9 +64,9 @@ public class PlazaService {
                             @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
                             @NotEmpty String estado) throws Exception {
         if (id == null || id <= 0 || codigo.trim().isEmpty() || plazasTotales == null || plazasTotales <= 0 ||
-            plazasDisponibles == null || plazasDisponibles < 0 ||
-            idParqueadero == null || idParqueadero <= 0 ||
-            estado.trim().isEmpty()) {
+                plazasDisponibles == null || plazasDisponibles < 0 ||
+                idParqueadero == null || idParqueadero <= 0 ||
+                estado.trim().isEmpty()) {
             throw new Exception("Datos de la plaza incompletos o invalidos para actualizar.");
         }
 
@@ -93,6 +94,18 @@ public class PlazaService {
         this.daoPlaza.getObj().setEstado(EstadoEnum.valueOf(estado.toUpperCase()));
         if (!this.daoPlaza.update(posToUpdate)) {
             throw new Exception("No se pudo modificar los datos de la plaza");
+        }
+    }
+
+    // Nuevo método para eliminar una Plaza por ID
+    public void deletePlaza(@NotNull Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de plaza inválido para eliminar.");
+        }
+        try {
+            this.daoPlaza.delete_by_id(id);
+        } catch (Exception e) {
+            throw new Exception("No se pudo eliminar la plaza con ID " + id + ": " + e.getMessage());
         }
     }
 
@@ -137,32 +150,71 @@ public class PlazaService {
         }
         return lista;
     }
-    
+
     public List<HashMap<String, String>> listPlazaConNombres() throws Exception {
+        return listPlazaConNombresFiltered(null, null);
+    }
+
+    public List<HashMap<String, String>> listPlazaConNombresFiltered(String searchBy, String searchText) throws Exception {
         List<HashMap<String, String>> lista = new ArrayList<>();
-        if (!daoPlaza.listAll().isEmpty()) {
-            Plaza[] plazas = daoPlaza.listAll().toArray();
-            DaoParqueadero daoParqueadero = new DaoParqueadero();
-            List<Parqueadero> allParqueaderos = Arrays.asList(daoParqueadero.listAll().toArray());
+        List<Plaza> allPlazas = Arrays.asList(daoPlaza.listAll().toArray());
+        DaoParqueadero daoParqueadero = new DaoParqueadero();
+        List<Parqueadero> allParqueaderos = Arrays.asList(daoParqueadero.listAll().toArray());
 
-            for (Plaza plaza : plazas) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", plaza.getId() != null ? plaza.getId().toString() : "");
-                aux.put("codigo", plaza.getCodigo() != null ? plaza.getCodigo() : "");
-                aux.put("plazasTotales", plaza.getPlazasTotales() != null ? plaza.getPlazasTotales().toString() : "");
-                aux.put("plazasDisponibles", plaza.getPlazasDisponibles() != null ? plaza.getPlazasDisponibles().toString() : "");
-                aux.put("estado", plaza.getEstado() != null ? plaza.getEstado().toString() : "");
-                aux.put("idParqueadero", plaza.getidParqueadero() != null ? plaza.getidParqueadero().toString() : ""); 
+        // Mejora: Convertir allParqueaderos a un mapa para búsqueda eficiente por ID
+        HashMap<Integer, Parqueadero> parqueaderoMap = new HashMap<>();
+        for (Parqueadero p : allParqueaderos) {
+            if (p != null && p.getId() != null) {
+                parqueaderoMap.put(p.getId(), p);
+            }
+        }
 
-                String nombreParqueadero = "Desconocido";
-                if (plaza.getidParqueadero() != null && plaza.getidParqueadero() > 0 && plaza.getidParqueadero() <= allParqueaderos.size()) { 
-                    Parqueadero parqueaderoEncontrado = allParqueaderos.get(plaza.getidParqueadero() - 1); 
-                    if (parqueaderoEncontrado != null && parqueaderoEncontrado.getNombre() != null) {
-                        nombreParqueadero = parqueaderoEncontrado.getNombre();
-                    }
+        for (Plaza plaza : allPlazas) {
+            HashMap<String, String> aux = new HashMap<>();
+            aux.put("id", plaza.getId() != null ? plaza.getId().toString() : "");
+            aux.put("codigo", plaza.getCodigo() != null ? plaza.getCodigo() : "");
+            aux.put("plazasTotales", plaza.getPlazasTotales() != null ? plaza.getPlazasTotales().toString() : "");
+            aux.put("plazasDisponibles", plaza.getPlazasDisponibles() != null ? plaza.getPlazasDisponibles().toString() : "");
+            aux.put("estado", plaza.getEstado() != null ? plaza.getEstado().toString() : "");
+            aux.put("idParqueadero", plaza.getidParqueadero() != null ? plaza.getidParqueadero().toString() : "");
+
+            String nombreParqueadero = "Desconocido";
+            if (plaza.getidParqueadero() != null) {
+                Parqueadero parqueaderoEncontrado = parqueaderoMap.get(plaza.getidParqueadero());
+                if (parqueaderoEncontrado != null && parqueaderoEncontrado.getNombre() != null) {
+                    nombreParqueadero = parqueaderoEncontrado.getNombre();
                 }
-                aux.put("nombreParqueadero", nombreParqueadero);
+            }
+            aux.put("nombreParqueadero", nombreParqueadero);
 
+            boolean matches = true;
+            if (searchBy != null && !searchBy.trim().isEmpty() && searchText != null && !searchText.trim().isEmpty()) {
+                String lowerCaseSearchText = searchText.toLowerCase().trim();
+                switch (searchBy) {
+                    case "id":
+                        matches = (plaza.getId() != null && plaza.getId().toString().toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    case "codigo":
+                        matches = (plaza.getCodigo() != null && plaza.getCodigo().toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    case "plazasTotales":
+                        matches = (plaza.getPlazasTotales() != null && plaza.getPlazasTotales().toString().toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    case "plazasDisponibles":
+                        matches = (plaza.getPlazasDisponibles() != null && plaza.getPlazasDisponibles().toString().toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    case "estado":
+                        matches = (plaza.getEstado() != null && plaza.getEstado().toString().toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    case "nombreParqueadero":
+                        matches = (nombreParqueadero.toLowerCase().contains(lowerCaseSearchText));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (matches) {
                 lista.add(aux);
             }
         }
