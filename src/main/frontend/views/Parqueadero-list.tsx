@@ -1,4 +1,3 @@
-// ParqueaderoView.tsx (corregido sin logs y sin duplicados)
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import {
   Button, ComboBox, Dialog, Grid, GridColumn, GridSortColumn, TextField,

@@ -113,7 +113,7 @@ public class ReservaService {
         return lista;
     }
 
-    // MÉTODO DE BÚSQUEDA FILTRADA
+    
     public List<HashMap> search(String criteria, String text) {
         List<HashMap> result = new ArrayList<>();
         if (criteria == null || text == null || criteria.isBlank() || text.isBlank()) {

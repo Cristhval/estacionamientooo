@@ -77,7 +77,7 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         saveFile(g.toJson(list.toArray()));
     }
 
-   @Override
+    @Override
     public void update_by_id(T obj, Integer id) throws Exception {
         LinkedList<T> list = listAll();
         for (int i = 0; i < list.getLength(); i++) {
@@ -109,11 +109,6 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     @Override
     public T get(Integer id) throws Exception {
 
-//        System.out.println("esta en el get "); //hay q arreglar busqueda de ticket
-//        LinkedList<T> list = listAll();
-//        return list.get(id);
-      
-      
         if (!listAll().isEmpty()) {
             return BinarySearchRecursive(listAll().toArray(), 0, listAll().getLength() - 1, id);
         } else
@@ -142,4 +137,3 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
 }
-

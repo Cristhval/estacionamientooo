@@ -1,1 +1,27 @@
-[{"id":1,"direccion":"Lourdes","nombre":"San Francisco"},{"id":2,"direccion":"10 de agosto","nombre":"Mateo y sus carros"},{"id":3,"direccion":"Azuay y mercadillo","nombre":"Reina del cisne"},{"id":4,"direccion":"Ibarra y 20 marzo","nombre":"San Jose"},{"id":5,"direccion":"Parque Miraflores","nombre":"San Sebastian"}]
+[
+    {
+        "id": 1,
+        "direccion": "Lourdes",
+        "nombre": "San Francisco"
+    },
+    {
+        "id": 2,
+        "direccion": "10 de agosto",
+        "nombre": "Mateo y sus carros"
+    },
+    {
+        "id": 3,
+        "direccion": "Azuay y mercadillo",
+        "nombre": "Reina del cisne"
+    },
+    {
+        "id": 4,
+        "direccion": "Ibarra y 20 marzo",
+        "nombre": "San Jose"
+    },
+    {
+        "id": 5,
+        "direccion": "Parque Flores",
+        "nombre": "San Sebastian"
+    }
+]
