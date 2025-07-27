@@ -1,13 +1,34 @@
 import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
+import { CuentaService } from 'Frontend/generated/endpoints';
 
 export default function HomeView() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!sessionStorage.getItem('reloaded')) {
+      sessionStorage.setItem('reloaded', 'true');
+      window.location.reload(); // Fuerza recarga completa
+    } else {
+      sessionStorage.removeItem('reloaded');
+    }
+  }, []);
+
+  useEffect(() => {
+    CuentaService.logout(); // Limpia el SecurityContext del backend
+  }, []);
+
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-r from-blue-200 to-blue-400 text-gray-900">
+    <div className="flex flex-col min-h-screen items-center justify-center text-gray-900" style={{
+      backgroundImage: "url('/images/parking.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}>
+
       {/* Contenedor del contenido */}
       <div className="text-center max-w-2xl p-8 bg-white rounded-2xl shadow-xl">
-        
+
         {/* Título */}
         <h1 className="text-4xl font-bold mb-4 text-blue-700">
           Visibilidad de Estacionamientos en la Ciudad de Loja
@@ -18,15 +39,6 @@ export default function HomeView() {
           Monitorea en tiempo real la disponibilidad de los estacionamientos públicos y privados en la ciudad de Loja. Encuentra espacios libres, administra tus reservas y contribuye a una movilidad más eficiente.
         </p>
 
-        {/* Imagen simulando mapa */}
-        <div className="w-full mb-6">
-          <img
-            src="/images/parking.png"
-            alt="Mapa de estacionamientos Loja"
-            className="rounded-lg shadow-md w-full object-cover"
-          />
-        </div>
-
         {/* Botones de navegación */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
@@ -35,14 +47,11 @@ export default function HomeView() {
           >
             Iniciar Sesión
           </button>
+          
+
+
           <button
-            onClick={() => navigate('/AdminViews')}
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition"
-          >
-            Ver Estacionamientos
-          </button>
-          <button
-            onClick={() => navigate('/registro')}
+            onClick={() => navigate('/cliente/registro')}
             className="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition"
           >
             Registrarse

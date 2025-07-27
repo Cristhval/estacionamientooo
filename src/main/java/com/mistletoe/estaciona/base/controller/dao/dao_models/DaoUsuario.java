@@ -7,8 +7,7 @@ import com.mistletoe.estaciona.base.controller.data_struct.Utiles;
 import com.mistletoe.estaciona.base.controller.data_struct.list.LinkedList;
 import com.mistletoe.estaciona.base.models.Persona;
 
-
-public class DaoUsuario extends AdapterDao<Persona>{
+public class DaoUsuario extends AdapterDao<Persona> {
     private Persona obj;
 
     public DaoUsuario() {
@@ -26,7 +25,7 @@ public class DaoUsuario extends AdapterDao<Persona>{
 
     public Boolean save() {
         try {
-            obj.setId(listAll().getLength()+1);
+            obj.setId(listAll().getLength() + 1);
             this.persist(obj);
             return true;
         } catch (Exception e) {
@@ -47,9 +46,7 @@ public class DaoUsuario extends AdapterDao<Persona>{
         }
     }
 
-
-
-    public HashMap<String, Object> toDict(Persona p) throws Exception{
+    public HashMap<String, Object> toDict(Persona p) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         map.put("usuario", p.getUsuario());
         map.put("id", p.getId());
@@ -58,7 +55,7 @@ public class DaoUsuario extends AdapterDao<Persona>{
         return map;
     }
 
-    private HashMap<String, Object> toDictPassword(Persona p) throws Exception{
+    private HashMap<String, Object> toDictPassword(Persona p) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         map.put("usuario", p.getUsuario());
         map.put("clave", p.getClave());
@@ -69,37 +66,35 @@ public class DaoUsuario extends AdapterDao<Persona>{
         return map;
     }
 
-    private LinkedList<HashMap<String, Object>> listPrivate() throws Exception{
+    private LinkedList<HashMap<String, Object>> listPrivate() throws Exception {
         LinkedList<HashMap<String, Object>> lista = new LinkedList<>();
-        if(!listAll().isEmpty()){
+        if (!listAll().isEmpty()) {
             Persona[] aux = listAll().toArray();
-            for(Persona c: aux){
+            for (Persona c : aux) {
                 lista.add(toDictPassword(c));
             }
         }
         return lista;
     }
 
-    
     private int partition(HashMap<String, Object> arr[], int begin, int end, Integer type, String attribute) {
         // hashmap //clave - valor
         // Calendar cd = Calendar.getInstance();
-        
+
         HashMap<String, Object> pivot = arr[end];
         int i = (begin - 1);
 
-        
         if (type == Utiles.ASCEDENTE) {
-            
+
             for (int j = begin; j < end; j++) {
                 System.out.println("hashmap " + arr[j]);
                 System.out.println("atribute " + attribute);
                 System.out.println("completo busqueda " + arr[j].get(attribute));
-                System.out.println("primera creacion de string"+arr[j].get(attribute).toString());
-                System.out.println("segunda creacion de string"+pivot.get(attribute).toString());
+                System.out.println("primera creacion de string" + arr[j].get(attribute).toString());
+                System.out.println("segunda creacion de string" + pivot.get(attribute).toString());
 
                 if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) < 0) {
-                    
+
                     // if (arr[j] <= pivot) {
                     i++;
                     HashMap<String, Object> swapTemp = arr[i];
@@ -109,11 +104,11 @@ public class DaoUsuario extends AdapterDao<Persona>{
             }
         } else {
             for (int j = begin; j < end; j++) {
-                System.out.println("primera creacion de string"+arr[j].get(attribute).toString());
-                System.out.println("segunda creacion de string"+pivot.get(attribute).toString());
+                System.out.println("primera creacion de string" + arr[j].get(attribute).toString());
+                System.out.println("segunda creacion de string" + pivot.get(attribute).toString());
 
                 if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) > 0) {
-                    
+
                     // if (arr[j] <= pivot) {
                     i++;
                     HashMap<String, Object> swapTemp = arr[i];
@@ -141,37 +136,36 @@ public class DaoUsuario extends AdapterDao<Persona>{
         }
     }
 
-
-
-
-    public HashMap<String, Object> login (String usuario, String clave) throws Exception{
-        //System.out.println("correoElectronico: "+usuario);
-        //System.out.println("clave: "+clave);
-        if(!listAll().isEmpty()){
+    public HashMap<String, Object> login(String usuario, String clave) throws Exception {
+        // System.out.println("correoElectronico: "+usuario);
+        // System.out.println("clave: "+clave);
+        if (!listAll().isEmpty()) {
             HashMap<String, Object>[] arreglo = listPrivate().toArray();
             System.out.println(arreglo[0].get("correroElectronico") + "  este es null?");
-            
-            //System.out.println("el arreglo spuestamente desordenado  " + arreglo.length);
+
+            // System.out.println("el arreglo spuestamente desordenado " + arreglo.length);
 
             quickSort(arreglo, 0, arreglo.length - 1, 1, "correoElectronico");
-            
-            //System.out.println("el arreglo spuestamente ordenado  " + arreglo.length);
 
-            HashMap<String, Object> search = BinarySearchRecursive(arreglo, 0, arreglo.length-1, "correoElectronico", usuario);
+            // System.out.println("el arreglo spuestamente ordenado " + arreglo.length);
+
+            HashMap<String, Object> search = BinarySearchRecursive(arreglo, 0, arreglo.length - 1, "correoElectronico",
+                    usuario);
             System.out.println("objeto buscado" + search);
-            if(search != null){
-                if(search.get("clave").toString().equals(clave)){
-                    return toDict(get((Integer)search.get("id")));
-                }else{
+            if (search != null) {
+                if (search.get("clave").toString().equals(clave)) {
+                    return toDict(get((Integer) search.get("id")));
+                } else {
                     throw new Exception("Credenciales erroneas");
                 }
-            }else 
+            } else
                 throw new Exception("No se encontro la cuenta");
-        }else return null;
+        } else
+            return null;
     }
 
-
-    public HashMap<String, Object> BinarySearchRecursive(HashMap<String, Object> arr[], int a, int b,String attribute, String value) throws Exception {
+    public HashMap<String, Object> BinarySearchRecursive(HashMap<String, Object> arr[], int a, int b, String attribute,
+            String value) throws Exception {
         if (b < 1) {
             return null;
         }
@@ -185,6 +179,21 @@ public class DaoUsuario extends AdapterDao<Persona>{
 
         else
             return BinarySearchRecursive(arr, n + 1, b, attribute, value);
+    }
+
+    public HashMap<String, Object> busquedaCorreo(String value) throws Exception {
+        if (!listAll().isEmpty()) {
+            HashMap<String, Object>[] arreglo = listPrivate().toArray();
+            quickSort(arreglo, 0, arreglo.length - 1, 1, "correoElectronico");
+            HashMap<String, Object> search = BinarySearchRecursive(arreglo, 0, arreglo.length - 1, "correoElectronico",
+                    value);
+            if (search != null) {
+                return toDictPassword(get((Integer) search.get("id")));
+            } else {
+                return null;
+            }
+        }
+        return null;
     }
 
 }

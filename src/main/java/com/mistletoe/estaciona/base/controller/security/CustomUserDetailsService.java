@@ -15,21 +15,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final DaoUsuario daoUsuario = new DaoUsuario();
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //HashMap<String, Object> mapa = daoUsuario.findByUsername(username);
-        HashMap<String, Object> mapa = new HashMap<>();
+    public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
+        try {
+            HashMap<String, Object> usuario = daoUsuario.busquedaCorreo(correo);
+            System.out.println("si nos esta entregando un usuario por el correoooo: " + usuario);
+            if (usuario == null) {
+                throw new UsernameNotFoundException("Usuario no encontrado");
+            }
 
-        if (mapa == null) {
-            throw new UsernameNotFoundException("Usuario no encontrado");
+            String password = (String) usuario.get("clave");
+            String rol = "ROLE_" + usuario.get("rol");
+
+            return User.builder()
+                    .username(correo)
+                    .password("{noop}" + password) 
+                    .roles(rol.replace("ROLE_", "")) 
+                    .build();
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Error buscando el usuario por el correo :c : " + e.getMessage());
         }
-
-        String password = (String) mapa.get("clave");
-        String role = "ROLE_" + mapa.get("rol"); // Spring requiere ROLE_ prefix
-
-        return User.builder()
-                .username("roble@gmail.com")
-                .password("{noop}" + "ramiro123") // {noop} = sin cifrar
-                .roles("ADMINISTRADOR") // Ej: ADMINISTRADOR o CLIENTE
-                .build();
     }
 }

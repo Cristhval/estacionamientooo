@@ -36,11 +36,14 @@ public class SecurityConfig {
                     "/connect/PlazaService/**",
                     "/connect/ReservaService/**",
                     "/connect/TicketService/**",
-                    "/connect/VehiculoService/**"
+                    "/connect/VehiculoService/**",
+                    "/connect/CuentaService/**",
+                    "/cliente/registro",
+                    "HomeView"
                 ).permitAll()
 
                 .requestMatchers("/AdminViews/**").hasRole("ADMINISTRADOR")
-                .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMINISTRADOR")
+                .requestMatchers("/cliente/**").hasAnyRole("CLIENTE")
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
