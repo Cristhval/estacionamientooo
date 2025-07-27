@@ -40,6 +40,8 @@
         "apellido": "robles",
         "correoElectronico": "roble@gmail.com",
         "id": 5,
+        "usuario": "ramiro",
+        "clave": "ramiro123",
         "rol": "ADMINISTRADOR"
     },
     {
