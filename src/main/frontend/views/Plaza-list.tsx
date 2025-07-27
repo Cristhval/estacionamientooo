@@ -1,5 +1,8 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import {
+  Button, ComboBox, Dialog, Grid, GridColumn, GridItemModel, NumberField,
+  TextField, VerticalLayout, HorizontalLayout, Icon, Select
+} from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { PlazaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -10,6 +13,7 @@ import Plaza from 'Frontend/generated/com/mistletoe/estaciona/base/models/Plaza'
 import { useEffect, useState } from 'react';
 
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn';
+import { ConfirmDialog } from '@vaadin/react-components/ConfirmDialog';
 
 export const config: ViewConfig = {
   title: 'Plaza',
@@ -20,274 +24,48 @@ export const config: ViewConfig = {
   },
 };
 
-type PlazaEntryFormProps = {
-  onPlazaCreated?: () => void;
-};
-
-function PlazaEntryForm(props: PlazaEntryFormProps): JSX.Element {
-  const dialogOpened = useSignal(false);
-
-  const codigo = useSignal('');
-  const plazasTotales = useSignal<string>('');
-  const plazasDisponibles = useSignal<string>('');
-  const idParqueadero = useSignal('');
-  const estado = useSignal('');
-
-  const createPlaza = async (): Promise<void> => {
-    try {
-      const plazasTotalesNum = parseInt(plazasTotales.value || '0');
-      const plazasDisponiblesNum = parseInt(plazasDisponibles.value || '0');
-      const idParqueaderoNum = parseInt(idParqueadero.value || '0');
-
-      await PlazaService.createPlaza(
-        codigo.value,
-        plazasTotalesNum,
-        plazasDisponiblesNum,
-        idParqueaderoNum,
-        estado.value
-      );
-      if (props.onPlazaCreated) {
-        props.onPlazaCreated();
-      }
-      codigo.value = '';
-      plazasTotales.value = '';
-      plazasDisponibles.value = '';
-      idParqueadero.value = '';
-      estado.value = '';
-      dialogOpened.value = false;
-      Notification.show('Plaza creada exitosamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
-    } catch (error: unknown) {
-      console.log(error);
-      handleError(error);
-      Notification.show((error as Error)?.message || 'Error desconocido al crear la plaza', { duration: 5000, position: 'top-center', theme: 'error' });
-    }
-  };
-
-  const listaParqueaderos = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    PlazaService.listParqueaderoCombo().then(data => {
-      listaParqueaderos.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  const listaEstados = useSignal<string[]>([]);
-  useEffect(() => {
-    PlazaService.listEstadoPlaza().then(data =>
-      listaEstados.value = (data ?? []).filter((item): item is string => typeof item === 'string')
-    );
-  }, []);
-
-  return (
-    <>
-      <Dialog
-        modeless
-        headerTitle="Nueva Plaza"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
-        footer={
-          <>
-            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
-            <Button onClick={createPlaza} theme="primary">
-              Registrar
-            </Button>
-          </>
-        }
-      >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField label="Codigo de Plaza"
-            placeholder="Ingrese el codigo de la plaza"
-            aria-label="Codigo de Plaza"
-            value={codigo.value}
-            onValueChanged={(evt) => (codigo.value = evt.detail.value)}
-          />
-          <NumberField label="Plazas Totales"
-            placeholder="Ingrese el total de plazas"
-            aria-label="Plazas Totales"
-            value={plazasTotales.value}
-            onValueChanged={(evt) => (plazasTotales.value = evt.detail.value)}
-          />
-          <NumberField label="Plazas Disponibles"
-            placeholder="Ingrese las plazas disponibles"
-            aria-label="Plazas Disponibles"
-            value={plazasDisponibles.value}
-            onValueChanged={(evt) => (plazasDisponibles.value = evt.detail.value)}
-          />
-          <ComboBox label="Parqueadero"
-            items={listaParqueaderos.value}
-            placeholder='Seleccione un Parqueadero'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idParqueadero.value}
-            onValueChanged={(evt) => (idParqueadero.value = evt.detail.value)}
-          />
-          <ComboBox label="Estado"
-            items={listaEstados.value}
-            placeholder='Seleccione un Estado'
-            value={estado.value}
-            onValueChanged={(evt) => (estado.value = evt.detail.value)}
-          />
-        </VerticalLayout>
-      </Dialog>
-      <Button onClick={() => dialogOpened.value = true}>
-        Agregar
-      </Button>
-    </>
-  );
-}
-
-type PlazaEntryFormUpdateProps = {
-  arguments: Plaza;
-  onPlazaUpdated?: () => void;
-};
-
-function PlazaEntryFormUpdate(props: PlazaEntryFormUpdateProps): JSX.Element {
-  const dialogOpened = useSignal(false);
-
-  const codigo = useSignal(props.arguments.codigo ?? '');
-  const plazasTotales = useSignal<string>(props.arguments.plazasTotales?.toString() ?? '');
-  const plazasDisponibles = useSignal<string>(props.arguments.plazasDisponibles?.toString() ?? '');
-  const idParqueadero = useSignal<string>(props.arguments.idParqueadero?.toString() ?? '');
-  const estado = useSignal<string>(props.arguments.estado?.toString() ?? '');
-  const id = useSignal(props.arguments.id);
-
-  useEffect(() => {
-    codigo.value = props.arguments.codigo ?? '';
-    plazasTotales.value = props.arguments.plazasTotales?.toString() ?? '';
-    plazasDisponibles.value = props.arguments.plazasDisponibles?.toString() ?? '';
-    idParqueadero.value = props.arguments.idParqueadero?.toString() ?? '';
-    estado.value = props.arguments.estado?.toString() ?? '';
-    id.value = props.arguments.id;
-  }, [props.arguments]);
-
-  const listaParqueaderos = useSignal<{ label: string, value: string }[]>([]);
-  useEffect(() => {
-    PlazaService.listParqueaderoCombo().then(data => {
-      listaParqueaderos.value = (data ?? []).map(item => ({
-        label: String(item?.label ?? ''),
-        value: String(item?.value ?? '')
-      }));
-    });
-  }, []);
-
-  const listaEstados = useSignal<string[]>([]);
-  useEffect(() => {
-    PlazaService.listEstadoPlaza().then(data =>
-      listaEstados.value = (data ?? []).filter((item): item is string => typeof item === 'string')
-    );
-  }, []);
-
-  const updatePlaza = async (): Promise<void> => {
-    try {
-      const plazasTotalesNum = parseInt(plazasTotales.value || '0');
-      const plazasDisponiblesNum = parseInt(plazasDisponibles.value || '0');
-      const idParqueaderoNum = parseInt(idParqueadero.value || '0');
-
-      if (
-        (codigo.value ?? '').trim().length === 0 ||
-        plazasTotalesNum <= 0 ||
-        plazasDisponiblesNum < 0 ||
-        idParqueaderoNum <= 0 ||
-        (estado.value ?? '').trim().length === 0 ||
-        id.value === undefined || id.value === null || id.value <= 0
-      ) {
-        Notification.show('No se pudo actualizar: faltan datos o ID invalido', { duration: 5000, position: 'top-center', theme: 'error' });
-        return;
-      }
-
-      await PlazaService.updatePlaza(
-        id.value,
-        codigo.value,
-        plazasTotalesNum,
-        plazasDisponiblesNum,
-        idParqueaderoNum,
-        estado.value
-      );
-      if (props.onPlazaUpdated) {
-        props.onPlazaUpdated();
-      }
-      dialogOpened.value = false;
-      Notification.show('Plaza actualizada exitosamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
-    } catch (error: unknown) {
-      console.log(error);
-      handleError(error);
-      Notification.show((error as Error)?.message || 'Error desconocido al actualizar la plaza', { duration: 5000, position: 'top-center', theme: 'error' });
-    }
-  };
-
-  return (
-    <>
-      <Dialog
-        modeless
-        headerTitle="Actualizar Plaza"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
-        footer={
-          <>
-            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
-            <Button onClick={updatePlaza} theme="primary">
-              Actualizar
-            </Button>
-          </>
-        }
-      >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField label="Codigo de Plaza"
-            placeholder="Ingrese el codigo de la plaza"
-            aria-label="Codigo de Plaza"
-            value={codigo.value}
-            onValueChanged={(evt) => (codigo.value = evt.detail.value)}
-          />
-          <NumberField label="Plazas Totales"
-            placeholder="Ingrese el total de plazas"
-            aria-label="Plazas Totales"
-            value={plazasTotales.value}
-            onValueChanged={(evt) => (plazasTotales.value = evt.detail.value)}
-          />
-          <NumberField label="Plazas Disponibles"
-            placeholder="Ingrese las plazas disponibles"
-            aria-label="Plazas Disponibles"
-            value={plazasDisponibles.value}
-            onValueChanged={(evt) => (plazasDisponibles.value = evt.detail.value)}
-          />
-          <ComboBox label="Parqueadero"
-            items={listaParqueaderos.value}
-            placeholder='Seleccione un Parqueadero'
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idParqueadero.value}
-            onValueChanged={(evt) => (idParqueadero.value = evt.detail.value)}
-          />
-          <ComboBox label="Estado"
-            items={listaEstados.value}
-            placeholder='Seleccione un Estado'
-            value={estado.value}
-            onValueChanged={(evt) => (estado.value = evt.detail.value)}
-          />
-        </VerticalLayout>
-      </Dialog>
-      <Button onClick={() => dialogOpened.value = true}>
-        Editar
-      </Button>
-    </>
-  );
-}
-
 export default function PlazaView() {
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
+  const [editDialogOpened, setEditDialogOpened] = useState(false);
+  const [editingPlaza, setEditingPlaza] = useState<Plaza | null>(null);
 
-  const callData = async (): Promise<void> => {
+  const [listaParqueaderos, setListaParqueaderos] = useState<{ label: string, value: string }[]>([]);
+  const [listaEstados, setListaEstados] = useState<string[]>([]);
+
+  const deleteConfirmationDialogOpened = useSignal(false);
+  const plazaToDelete = useSignal<Plaza | null>(null);
+
+  const searchCriteria = useSignal<string>('');
+  const searchText = useSignal<string>('');
+
+  const searchOptions = [
+    { label: 'Código', value: 'codigo' },
+    { label: 'Plazas Totales', value: 'plazasTotales' },
+    { label: 'Plazas Disponibles', value: 'plazasDisponibles' },
+    { label: 'Parqueadero', value: 'nombreParqueadero' },
+    { label: 'Estado', value: 'estado' },
+    { label: 'ID', value: 'id' },
+  ];
+
+  const [formValues, setFormValues] = useState({
+    id: 0,
+    codigo: '',
+    plazasTotales: '',
+    plazasDisponibles: '',
+    idParqueadero: '',
+    estado: '',
+  });
+
+  const resetForm = () => setFormValues({ id: 0, codigo: '', plazasTotales: '', plazasDisponibles: '', idParqueadero: '', estado: '' });
+
+  const callData = async (criteria: string | null = null, text: string | null = null): Promise<void> => {
     try {
-      const data = await PlazaService.listPlazaConNombres();
+      const data = await PlazaService.listPlazaConNombresFiltered(
+        criteria ?? undefined,
+        text ?? undefined
+      );
       setItems((data ?? []).filter((item) => item !== undefined));
     } catch (error) {
-      console.error("Error al cargar datos de plazas:", error);
       handleError(error);
       Notification.show('Error al cargar la lista de plazas', { duration: 5000, position: 'top-center', theme: 'error' });
     }
@@ -295,48 +73,193 @@ export default function PlazaView() {
 
   useEffect(() => {
     callData();
+    PlazaService.listParqueaderoCombo().then(data =>
+      setListaParqueaderos(
+        (data ?? [])
+          .filter((item): item is Record<string, string> => !!item && typeof item.label === 'string' && typeof item.value === 'string')
+          .map(item => ({ label: item.label, value: item.value }))
+      )
+    );
+    PlazaService.listEstadoPlaza().then(data => setListaEstados((data ?? []).filter(item => typeof item === 'string')));
   }, []);
 
-  function index({ model }: { model: GridItemModel<Record<string, unknown>> }) {
-    return (
-      <span>
-        {model.index + 1}
-      </span>
-    );
-  }
+  const handleSave = async () => {
+    try {
+      const { id, codigo, plazasTotales, plazasDisponibles, idParqueadero, estado } = formValues;
+      const total = parseInt(plazasTotales);
+      const disp = parseInt(plazasDisponibles);
+      const parqueadero = parseInt(idParqueadero);
 
-  function link({ item }: { item: Record<string, unknown> }): JSX.Element {
-    const plazaItem: Plaza = {
-      id: item.id as number | undefined,
-      codigo: item.codigo as string | undefined,
-      plazasTotales: item.plazasTotales as number | undefined,
-      plazasDisponibles: item.plazasDisponibles as number | undefined,
-      idParqueadero: item.idParqueadero as number | undefined,
-      estado: item.estado as any
-    };
+      if (!codigo || isNaN(total) || isNaN(disp) || isNaN(parqueadero) || !estado) {
+        Notification.show('Datos incompletos o inválidos', { theme: 'error' });
+        return;
+      }
+
+      if (id > 0) {
+        await PlazaService.updatePlaza(id, codigo, total, disp, parqueadero, estado);
+        Notification.show('Plaza actualizada exitosamente', { theme: 'success' });
+      } else {
+        await PlazaService.createPlaza(codigo, total, disp, parqueadero, estado);
+        Notification.show('Plaza creada exitosamente', { theme: 'success' });
+      }
+      resetForm();
+      setEditDialogOpened(false);
+      callData(searchCriteria.value, searchText.value);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const confirmDelete = (plaza: Plaza) => {
+    plazaToDelete.value = plaza;
+    deleteConfirmationDialogOpened.value = true;
+  };
+
+  const handleDelete = async () => {
+    const id = plazaToDelete.value?.id;
+    if (!id) return;
+    try {
+      await PlazaService.deletePlaza(id);
+      Notification.show('Plaza eliminada exitosamente', { theme: 'success' });
+      deleteConfirmationDialogOpened.value = false;
+      plazaToDelete.value = null;
+      setItems([]);
+      await callData(searchCriteria.value, searchText.value);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const renderActions = ({ item }: { item: Record<string, unknown> }) => {
+    const id = item.id as number;
     return (
-      <span>
-        <PlazaEntryFormUpdate arguments={plazaItem} onPlazaUpdated={callData} />
-      </span>
+      <div key={`plaza-${id}`} style={{ display: 'flex', gap: '0.5rem' }}>
+        <Button
+          onClick={() => {
+            setFormValues({
+              id,
+              codigo: item.codigo as string,
+              plazasTotales: item.plazasTotales as string,
+              plazasDisponibles: item.plazasDisponibles as string,
+              idParqueadero: item.idParqueadero?.toString() ?? '',
+              estado: item.estado as string,
+            });
+            setEditDialogOpened(true);
+          }}
+        >Editar</Button>
+        <Button theme="error" onClick={() => confirmDelete(item as Plaza)}>Eliminar</Button>
+      </div>
     );
-  }
+  };
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <ViewToolbar title="Lista de Plazas">
         <Group>
-          <PlazaEntryForm onPlazaCreated={callData} />
+          <Button
+            onClick={() => {
+              resetForm();
+              setEditDialogOpened(true);
+            }}
+          >Agregar</Button>
         </Group>
       </ViewToolbar>
-      <Grid items={items}>
-        <GridColumn header="Nro" renderer={index} />
+
+      <HorizontalLayout theme="spacing" style={{ width: '100%', alignItems: 'baseline' }}>
+        <ComboBox
+          items={searchOptions}
+          itemLabelPath="label"
+          itemValuePath="value"
+          value={searchCriteria.value}
+          onValueChanged={({ detail }) => (searchCriteria.value = detail.value ?? '')}
+          placeholder="Seleccione un criterio"
+          style={{ flexGrow: 1, minWidth: '150px' }}
+        />
+        <TextField
+          placeholder="Buscar"
+          value={searchText.value}
+          onValueChanged={({ detail }) => (searchText.value = detail.value ?? '')}
+          onKeyDown={(e) => e.key === 'Enter' && callData(searchCriteria.value, searchText.value)}
+          style={{ flexGrow: 2, minWidth: '200px' }}
+        >
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={() => callData(searchCriteria.value, searchText.value)} theme="primary">
+          BUSCAR
+        </Button>
+      </HorizontalLayout>
+
+      <Grid items={items} itemIdPath="id">
+        <GridColumn header="#" renderer={({ model }) => <span>{model.index + 1}</span>} />
         <GridSortColumn path="codigo" header="Codigo de Plaza" />
         <GridSortColumn path="plazasTotales" header="Plazas Totales" />
         <GridSortColumn path="plazasDisponibles" header="Plazas Disponibles" />
         <GridSortColumn path="nombreParqueadero" header="Parqueadero" />
         <GridSortColumn path="estado" header="Estado" />
-        <GridColumn header="Acciones" renderer={link} />
+        <GridColumn header="Acciones" renderer={renderActions} />
       </Grid>
+
+      <Dialog
+        headerTitle={formValues.id > 0 ? 'Editar Plaza' : 'Nueva Plaza'}
+        opened={editDialogOpened}
+        onOpenedChanged={({ detail }) => setEditDialogOpened(detail.value)}
+        footer={
+          <>
+            <Button onClick={() => setEditDialogOpened(false)}>Cancelar</Button>
+            <Button onClick={handleSave} theme="primary">
+              {formValues.id > 0 ? 'Actualizar' : 'Registrar'}
+            </Button>
+          </>
+        }
+      >
+        <VerticalLayout style={{ alignItems: 'stretch', width: '20rem' }}>
+          <TextField
+            label="Código"
+            value={formValues.codigo}
+            onValueChanged={(e) => setFormValues({ ...formValues, codigo: e.detail.value })}
+          />
+          <NumberField
+            label="Plazas Totales"
+            value={formValues.plazasTotales}
+            onValueChanged={(e) => setFormValues({ ...formValues, plazasTotales: e.detail.value })}
+          />
+          <NumberField
+            label="Plazas Disponibles"
+            value={formValues.plazasDisponibles}
+            onValueChanged={(e) => setFormValues({ ...formValues, plazasDisponibles: e.detail.value })}
+          />
+          <ComboBox
+            label="Parqueadero"
+            items={listaParqueaderos}
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={formValues.idParqueadero}
+            onValueChanged={(e) => setFormValues({ ...formValues, idParqueadero: e.detail.value })}
+          />
+          <ComboBox
+            label="Estado"
+            items={listaEstados}
+            value={formValues.estado}
+            onValueChanged={(e) => setFormValues({ ...formValues, estado: e.detail.value })}
+          />
+        </VerticalLayout>
+      </Dialog>
+
+      <ConfirmDialog
+        opened={deleteConfirmationDialogOpened.value}
+        onOpenedChanged={({ detail }) => (deleteConfirmationDialogOpened.value = detail.value)}
+        header={`Eliminar Plaza`}
+        confirmTheme="error primary"
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={handleDelete}
+        onCancel={() => {
+          deleteConfirmationDialogOpened.value = false;
+          plazaToDelete.value = null;
+        }}
+      >
+        ¿Estás seguro de que quieres eliminar la plaza con código <b>{plazaToDelete.value?.codigo}</b>?
+      </ConfirmDialog>
     </main>
   );
 }

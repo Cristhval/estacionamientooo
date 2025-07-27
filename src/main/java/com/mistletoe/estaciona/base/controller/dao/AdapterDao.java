@@ -142,3 +142,4 @@ public class AdapterDao<T> implements InterfaceDao<T> {
     }
 
 }
+
