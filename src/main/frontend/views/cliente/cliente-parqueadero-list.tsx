@@ -20,6 +20,7 @@ import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import Parqueadero from 'Frontend/generated/com/mistletoe/estaciona/base/models/Parqueadero';
 import { useEffect, useState } from 'react';
 import { GridSortColumn } from '@vaadin/react-components/GridSortColumn';
+import { useAuth } from 'Frontend/security/auth';
 
 export const config: ViewConfig = {
   title: 'Parqueadero',
@@ -30,7 +31,7 @@ export const config: ViewConfig = {
   },
 };
 
-// ----------- Formulario para crear Parqueaderos (igual que antes) -----------
+// ----------- Formulario para crear Parqueaderos -----------
 type ParqueaderoEntryFormProps = {
   onParqueaderoCreated?: () => void;
 };
@@ -97,13 +98,11 @@ function ParqueaderoEntryForm(props: ParqueaderoEntryFormProps) {
           />
         </VerticalLayout>
       </Dialog>
-
-      
     </>
   );
 }
 
-// ----------- NUEVO: Formulario para crear Reserva -----------
+// ----------- Formulario para crear Reserva -----------
 type ReservaEntryFormProps = {
   parqueadero: Parqueadero;
 };
@@ -190,6 +189,7 @@ function ReservaEntryForm({ parqueadero }: ReservaEntryFormProps) {
 // ----------- Vista Principal de Parqueaderos -----------
 export default function ParqueaderoView() {
   const [items, setItems] = useState<Parqueadero[]>([]);
+  const { logout } = useAuth();
 
   const callData = async (): Promise<void> => {
     try {
@@ -223,6 +223,16 @@ export default function ParqueaderoView() {
       <ViewToolbar title="Lista de Parqueaderos">
         <Group>
           <ParqueaderoEntryForm onParqueaderoCreated={callData} />
+          {/* Botón de cerrar sesión */}
+          <Button
+            theme="error"
+            onClick={async () => {
+              await logout();
+              window.location.href = '/login'; // redirige al login
+            }}
+          >
+            Cerrar sesión
+          </Button>
         </Group>
       </ViewToolbar>
       <Grid items={items}>
