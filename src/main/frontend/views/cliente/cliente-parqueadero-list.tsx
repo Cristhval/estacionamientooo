@@ -1,15 +1,25 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout } from '@vaadin/react-components';
-import { Notification } from '@vaadin/react-components/Notification';
-import { ParqueaderoService } from 'Frontend/generated/endpoints';
+import {
+  Button,
+  Dialog,
+  Grid,
+  GridColumn,
+  GridItemModel,
+  TextField,
+  VerticalLayout,
+  Notification,
+  DatePicker,
+  TimePicker,
+  Select,
+} from '@vaadin/react-components';
+import { ParqueaderoService, ReservaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 
 import Parqueadero from 'Frontend/generated/com/mistletoe/estaciona/base/models/Parqueadero';
 import { useEffect, useState } from 'react';
-
-import { GridSortColumn, GridSortColumnDirectionChangedEvent } from '@vaadin/react-components/GridSortColumn';
+import { GridSortColumn } from '@vaadin/react-components/GridSortColumn';
 
 export const config: ViewConfig = {
   title: 'Parqueadero',
@@ -20,6 +30,7 @@ export const config: ViewConfig = {
   },
 };
 
+// ----------- Formulario para crear Parqueaderos (igual que antes) -----------
 type ParqueaderoEntryFormProps = {
   onParqueaderoCreated?: () => void;
 };
@@ -62,7 +73,7 @@ function ParqueaderoEntryForm(props: ParqueaderoEntryFormProps) {
         }}
         footer={
           <>
-            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
+            <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
             <Button onClick={createParqueadero} theme="primary">
               Registrar
             </Button>
@@ -70,13 +81,15 @@ function ParqueaderoEntryForm(props: ParqueaderoEntryFormProps) {
         }
       >
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField label="Nombre del Parqueadero"
+          <TextField
+            label="Nombre del Parqueadero"
             placeholder="Ingrese el nombre del parqueadero"
             aria-label="Nombre del Parqueadero"
             value={nombre.value}
             onValueChanged={(evt) => (nombre.value = evt.detail.value)}
           />
-          <TextField label="Direccion del Parqueadero"
+          <TextField
+            label="Direccion del Parqueadero"
             placeholder="Ingrese la direccion del parqueadero"
             aria-label="Direccion del Parqueadero"
             value={direccion.value}
@@ -84,126 +97,123 @@ function ParqueaderoEntryForm(props: ParqueaderoEntryFormProps) {
           />
         </VerticalLayout>
       </Dialog>
-      <Button onClick={() => dialogOpened.value = true}>
-        Agregar
-      </Button>
+
+      
     </>
   );
 }
 
-type ParqueaderoEntryFormUpdateProps = {
-  arguments: Parqueadero;
-  onParqueaderoUpdated?: () => void;
+// ----------- NUEVO: Formulario para crear Reserva -----------
+type ReservaEntryFormProps = {
+  parqueadero: Parqueadero;
 };
 
-function ParqueaderoEntryFormUpdate(props: ParqueaderoEntryFormUpdateProps) {
+function ReservaEntryForm({ parqueadero }: ReservaEntryFormProps) {
   const dialogOpened = useSignal(false);
 
-  const nombre = useSignal(props.arguments.nombre ?? '');
-  const direccion = useSignal(props.arguments.direccion ?? '');
-  const id = useSignal(props.arguments.id);
+  const [clientes, setClientes] = useState<{ value: string; label: string }[]>([]);
+  const [plazas, setPlazas] = useState<{ value: string; label: string }[]>([]);
+  const [cliente, setCliente] = useState<string | null>(null);
+  const [plaza, setPlaza] = useState<string | null>(null);
+  const [fecha, setFecha] = useState<Date | null>(null);
+  const [horaEntrada, setHoraEntrada] = useState<string | null>(null);
+  const [horaSalida, setHoraSalida] = useState<string | null>(null);
 
   useEffect(() => {
-    nombre.value = props.arguments.nombre ?? '';
-    direccion.value = props.arguments.direccion ?? '';
-    id.value = props.arguments.id;
-  }, [props.arguments]);
+    if (dialogOpened.value) {
+      ReservaService.listaAlbumClientes().then(setClientes);
+      ReservaService.listaAlbumPlazas().then(setPlazas);
+    }
+  }, [dialogOpened.value]);
 
-  const updateParqueadero = async () => {
+  const createReserva = async () => {
+    if (!fecha || !horaEntrada || !horaSalida || !cliente || !plaza) {
+      Notification.show('Completa todos los campos', { duration: 3000, position: 'top-center', theme: 'error' });
+      return;
+    }
+
+    const [hE, mE] = horaEntrada.split(':').map(Number);
+    const [hS, mS] = horaSalida.split(':').map(Number);
+
+    const entradaDate = new Date(fecha);
+    entradaDate.setHours(hE, mE);
+
+    const salidaDate = new Date(fecha);
+    salidaDate.setHours(hS, mS);
+
     try {
-      if (
-        (nombre.value ?? '').trim().length === 0 ||
-        (direccion.value ?? '').trim().length === 0 ||
-        id.value === undefined ||
-        id.value === null ||
-        id.value <= 0
-      ) {
-        Notification.show('No se pudo actualizar: faltan datos o ID invalido', { duration: 5000, position: 'top-center', theme: 'error' });
-        return;
-      }
-      await ParqueaderoService.updateParqueadero(id.value, nombre.value, direccion.value);
-      if (props.onParqueaderoUpdated) {
-        props.onParqueaderoUpdated();
-      }
+      await ReservaService.createReserva(
+        fecha,
+        entradaDate.toISOString(),
+        salidaDate.toISOString(),
+        parseInt(cliente),
+        parseInt(plaza)
+      );
+
+      Notification.show('Reserva creada correctamente', { duration: 3000, position: 'bottom-end', theme: 'success' });
       dialogOpened.value = false;
-      Notification.show('Parqueadero actualizado exitosamente', { duration: 5000, position: 'bottom-end', theme: 'success' });
-    } catch (error: unknown) {
-      console.log(error);
-      handleError(error);
-      Notification.show((error as Error)?.message || 'Error desconocido al actualizar el parqueadero', { duration: 5000, position: 'top-center', theme: 'error' });
+    } catch (error) {
+      console.error(error);
+      Notification.show('Error al crear la reserva', { duration: 3000, position: 'top-center', theme: 'error' });
     }
   };
 
   return (
     <>
       <Dialog
-        modeless
-        headerTitle="Actualizar Parqueadero"
+        headerTitle={`Crear reserva para ${parqueadero.nombre}`}
         opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
+        onOpenedChanged={({ detail }) => (dialogOpened.value = detail.value)}
         footer={
           <>
-            <Button onClick={() => dialogOpened.value = false}>Cancelar</Button>
-            <Button onClick={updateParqueadero} theme="primary">
-              Actualizar
+            <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
+            <Button theme="primary" onClick={createReserva}>
+              Guardar
             </Button>
           </>
         }
       >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '300px', maxWidth: '100%' }}>
-          <TextField label="Nombre del Parqueadero"
-            placeholder="Ingrese el nombre del parqueadero"
-            aria-label="Nombre del Parqueadero"
-            value={nombre.value}
-            onValueChanged={(evt) => (nombre.value = evt.detail.value)}
-          />
-          <TextField label="Direccion del Parqueadero"
-            placeholder="Ingrese la direccion del parqueadero"
-            aria-label="Direccion del Parqueadero"
-            value={direccion.value}
-            onValueChanged={(evt) => (direccion.value = evt.detail.value)}
-          />
+        <VerticalLayout style={{ width: '20rem', gap: 'var(--lumo-space-m)' }}>
+          <Select label="Cliente al que reservar" items={clientes} onValueChanged={(e) => setCliente(e.detail.value)} />
+          <Select label="Plaza" items={plazas} onValueChanged={(e) => setPlaza(e.detail.value)} />
+          <DatePicker label="Fecha" onValueChanged={(e) => setFecha(new Date(e.detail.value))} />
+          <TimePicker label="Hora Entrada" onValueChanged={(e) => setHoraEntrada(e.detail.value)} />
+          <TimePicker label="Hora Salida" onValueChanged={(e) => setHoraSalida(e.detail.value)} />
         </VerticalLayout>
       </Dialog>
-      <Button onClick={() => dialogOpened.value = true}>
-        Editar
-      </Button>
+
+      <Button onClick={() => (dialogOpened.value = true)}>Crear Reserva</Button>
     </>
   );
 }
 
+// ----------- Vista Principal de Parqueaderos -----------
 export default function ParqueaderoView() {
   const [items, setItems] = useState<Parqueadero[]>([]);
 
   const callData = async (): Promise<void> => {
     try {
-      
       const data = await ParqueaderoService.listAll();
       setItems((data ?? []).filter((item): item is Parqueadero => item !== undefined));
     } catch (error) {
-      console.error("Error al cargar datos de parqueaderos:", error);
+      console.error('Error al cargar datos de parqueaderos:', error);
       handleError(error);
       Notification.show('Error al cargar la lista de parqueaderos', { duration: 5000, position: 'top-center', theme: 'error' });
     }
   };
-      useEffect(() => {
+
+  useEffect(() => {
     callData();
   }, []);
 
   function index({ model }: { model: GridItemModel<Parqueadero> }) {
-    return (
-      <span>
-        {model.index + 1}
-      </span>
-    );
+    return <span>{model.index + 1}</span>;
   }
 
   function link({ item }: { item: Parqueadero }) {
     return (
       <span>
-        <ParqueaderoEntryFormUpdate arguments={item} onParqueaderoUpdated={callData} />
+        <ReservaEntryForm parqueadero={item} />
       </span>
     );
   }
@@ -221,8 +231,6 @@ export default function ParqueaderoView() {
         <GridSortColumn path="direccion" header="Direccion" />
         <GridColumn header="Acciones" renderer={link} />
       </Grid>
-
     </main>
-
   );
 }
