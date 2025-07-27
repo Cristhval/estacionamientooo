@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import com.mistletoe.estaciona.base.controller.dao.dao_models.DaoParqueadero;
 import com.mistletoe.estaciona.base.models.Parqueadero;
-import java.util.stream.Collectors; // Asegúrate de importar esto si no está
 
 @BrowserCallable
 @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -42,8 +41,8 @@ public class PlazaService {
     }
 
     public void createPlaza(@NotEmpty String codigo, @NotNull Integer plazasTotales,
-                            @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
-                            @NotEmpty String estado) throws Exception {
+            @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
+            @NotEmpty String estado) throws Exception {
         if (codigo.trim().isEmpty() || plazasTotales == null || plazasTotales <= 0 ||
                 plazasDisponibles == null || plazasDisponibles < 0 ||
                 idParqueadero == null || idParqueadero <= 0 ||
@@ -61,8 +60,8 @@ public class PlazaService {
     }
 
     public void updatePlaza(@NotNull Integer id, @NotEmpty String codigo, @NotNull Integer plazasTotales,
-                            @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
-                            @NotEmpty String estado) throws Exception {
+            @NotNull Integer plazasDisponibles, @NotNull Integer idParqueadero,
+            @NotEmpty String estado) throws Exception {
         if (id == null || id <= 0 || codigo.trim().isEmpty() || plazasTotales == null || plazasTotales <= 0 ||
                 plazasDisponibles == null || plazasDisponibles < 0 ||
                 idParqueadero == null || idParqueadero <= 0 ||
@@ -97,7 +96,7 @@ public class PlazaService {
         }
     }
 
-    // Nuevo método para eliminar una Plaza por ID
+    // metodo para eliminar una Plaza por ID
     public void deletePlaza(@NotNull Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de plaza inválido para eliminar.");
@@ -155,13 +154,13 @@ public class PlazaService {
         return listPlazaConNombresFiltered(null, null);
     }
 
-    public List<HashMap<String, String>> listPlazaConNombresFiltered(String searchBy, String searchText) throws Exception {
+    public List<HashMap<String, String>> listPlazaConNombresFiltered(String searchBy, String searchText)
+            throws Exception {
         List<HashMap<String, String>> lista = new ArrayList<>();
         List<Plaza> allPlazas = Arrays.asList(daoPlaza.listAll().toArray());
         DaoParqueadero daoParqueadero = new DaoParqueadero();
         List<Parqueadero> allParqueaderos = Arrays.asList(daoParqueadero.listAll().toArray());
 
-        // Mejora: Convertir allParqueaderos a un mapa para búsqueda eficiente por ID
         HashMap<Integer, Parqueadero> parqueaderoMap = new HashMap<>();
         for (Parqueadero p : allParqueaderos) {
             if (p != null && p.getId() != null) {
@@ -174,7 +173,8 @@ public class PlazaService {
             aux.put("id", plaza.getId() != null ? plaza.getId().toString() : "");
             aux.put("codigo", plaza.getCodigo() != null ? plaza.getCodigo() : "");
             aux.put("plazasTotales", plaza.getPlazasTotales() != null ? plaza.getPlazasTotales().toString() : "");
-            aux.put("plazasDisponibles", plaza.getPlazasDisponibles() != null ? plaza.getPlazasDisponibles().toString() : "");
+            aux.put("plazasDisponibles",
+                    plaza.getPlazasDisponibles() != null ? plaza.getPlazasDisponibles().toString() : "");
             aux.put("estado", plaza.getEstado() != null ? plaza.getEstado().toString() : "");
             aux.put("idParqueadero", plaza.getidParqueadero() != null ? plaza.getidParqueadero().toString() : "");
 
@@ -192,19 +192,24 @@ public class PlazaService {
                 String lowerCaseSearchText = searchText.toLowerCase().trim();
                 switch (searchBy) {
                     case "id":
-                        matches = (plaza.getId() != null && plaza.getId().toString().toLowerCase().contains(lowerCaseSearchText));
+                        matches = (plaza.getId() != null
+                                && plaza.getId().toString().toLowerCase().contains(lowerCaseSearchText));
                         break;
                     case "codigo":
-                        matches = (plaza.getCodigo() != null && plaza.getCodigo().toLowerCase().contains(lowerCaseSearchText));
+                        matches = (plaza.getCodigo() != null
+                                && plaza.getCodigo().toLowerCase().contains(lowerCaseSearchText));
                         break;
                     case "plazasTotales":
-                        matches = (plaza.getPlazasTotales() != null && plaza.getPlazasTotales().toString().toLowerCase().contains(lowerCaseSearchText));
+                        matches = (plaza.getPlazasTotales() != null
+                                && plaza.getPlazasTotales().toString().toLowerCase().contains(lowerCaseSearchText));
                         break;
                     case "plazasDisponibles":
-                        matches = (plaza.getPlazasDisponibles() != null && plaza.getPlazasDisponibles().toString().toLowerCase().contains(lowerCaseSearchText));
+                        matches = (plaza.getPlazasDisponibles() != null
+                                && plaza.getPlazasDisponibles().toString().toLowerCase().contains(lowerCaseSearchText));
                         break;
                     case "estado":
-                        matches = (plaza.getEstado() != null && plaza.getEstado().toString().toLowerCase().contains(lowerCaseSearchText));
+                        matches = (plaza.getEstado() != null
+                                && plaza.getEstado().toString().toLowerCase().contains(lowerCaseSearchText));
                         break;
                     case "nombreParqueadero":
                         matches = (nombreParqueadero.toLowerCase().contains(lowerCaseSearchText));

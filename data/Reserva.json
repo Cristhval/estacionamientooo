@@ -1,1 +1,47 @@
-[{"id":1,"fecha":"Jul 8, 2025, 7:00:00 PM","horaEntrada":"Jul 9, 2025, 12:47:00 AM","horaSalida":"Jul 9, 2025, 2:49:00 AM","idCliente":1,"idPlaza":2,"eliminado":false},{"id":2,"fecha":"Jul 23, 2025, 7:00:00 PM","horaEntrada":"Jul 24, 2025, 4:44:00 AM","horaSalida":"Jul 23, 2025, 6:46:00 AM","idCliente":3,"idPlaza":5,"eliminado":false},{"id":3,"fecha":"Jul 25, 2025, 7:00:00 PM","horaEntrada":"Jul 25, 2025, 11:51:00 PM","horaSalida":"Jul 25, 2025, 11:52:00 PM","idCliente":6,"idPlaza":5,"eliminado":false},{"id":4,"fecha":"Jul 25, 2025, 7:00:00 PM","horaEntrada":"Jul 26, 2025, 2:14:00 AM","horaSalida":"Jul 26, 2025, 3:09:00 AM","idCliente":1,"idPlaza":5,"eliminado":true},{"id":5,"fecha":"Jul 16, 2025, 7:00:00 PM","horaEntrada":"Jul 16, 2025, 10:11:00 PM","horaSalida":"Jul 17, 2025, 12:13:00 AM","idCliente":5,"idPlaza":2,"eliminado":true},{"id":6,"fecha":"Jul 26, 2025, 7:00:00 PM","horaEntrada":"Jul 26, 2025, 4:56:00 PM","horaSalida":"Jul 26, 2025, 6:58:00 PM","idCliente":1,"idPlaza":5,"eliminado":false},{"id":7,"fecha":"Jul 1, 2025, 7:00:00 PM","horaEntrada":"Jul 1, 2025, 4:59:00 PM","horaSalida":"Jul 1, 2025, 7:01:00 PM","idCliente":1,"idPlaza":3,"eliminado":false},{"id":8,"fecha":"Jul 21, 2025, 7:00:00 PM","horaEntrada":"Jul 21, 2025, 10:02:00 PM","horaSalida":"Jul 22, 2025, 12:05:00 AM","idCliente":5,"idPlaza":3,"eliminado":true},{"id":9,"fecha":"Jul 22, 2025, 7:00:00 PM","horaEntrada":"Jul 22, 2025, 5:05:00 PM","horaSalida":"Jul 22, 2025, 7:07:00 PM","idCliente":2,"idPlaza":3,"eliminado":true},{"id":10,"fecha":"Jul 16, 2025, 7:00:00 PM","horaEntrada":"Jul 16, 2025, 5:09:00 PM","horaSalida":"Jul 16, 2025, 8:12:00 PM","idCliente":3,"idPlaza":3,"eliminado":false}]
+[
+    {
+        "id": 1,
+        "fecha": "Jul 8, 2025, 7:00:00 PM",
+        "horaEntrada": "Jul 9, 2025, 12:47:00 AM",
+        "horaSalida": "Jul 9, 2025, 2:49:00 AM",
+        "idCliente": 1,
+        "idPlaza": 2,
+        "eliminado": false
+    },
+    {
+        "id": 2,
+        "fecha": "Jul 23, 2025, 7:00:00 PM",
+        "horaEntrada": "Jul 24, 2025, 4:44:00 AM",
+        "horaSalida": "Jul 23, 2025, 6:46:00 AM",
+        "idCliente": 3,
+        "idPlaza": 5,
+        "eliminado": false
+    },
+    {
+        "id": 3,
+        "fecha": "Jul 25, 2025, 7:00:00 PM",
+        "horaEntrada": "Jul 25, 2025, 11:51:00 PM",
+        "horaSalida": "Jul 25, 2025, 11:52:00 PM",
+        "idCliente": 6,
+        "idPlaza": 5,
+        "eliminado": false
+    },
+    {
+        "id": 4,
+        "fecha": "Jul 25, 2025, 7:00:00 PM",
+        "horaEntrada": "Jul 26, 2025, 2:14:00 AM",
+        "horaSalida": "Jul 26, 2025, 3:09:00 AM",
+        "idCliente": 1,
+        "idPlaza": 5,
+        "eliminado": true
+    },
+    {
+        "id": 5,
+        "fecha": "Jul 16, 2025, 7:00:00 PM",
+        "horaEntrada": "Jul 16, 2025, 10:11:00 PM",
+        "horaSalida": "Jul 17, 2025, 12:13:00 AM",
+        "idCliente": 5,
+        "idPlaza": 2,
+        "eliminado": false
+    }
+]
