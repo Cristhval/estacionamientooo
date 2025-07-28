@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
         try {
             HashMap<String, Object> usuario = daoUsuario.busquedaCorreo(correo);
-            System.out.println("si nos esta entregando un usuario por el correoooo: " + usuario);
+            //System.out.println("si nos esta entregando un usuario por el correoooo: " + usuario);
             if (usuario == null) {
                 throw new UsernameNotFoundException("Usuario no encontrado");
             }

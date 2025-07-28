@@ -23,14 +23,14 @@ export default function HomeView() {
       backgroundImage: "url('/images/parking.png')",
       backgroundSize: "cover",
       backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
+      backgroundRepeat: "no-repeat"
     }}>
 
       {/* Contenedor del contenido */}
-      <div className="text-center max-w-2xl p-8 bg-white rounded-2xl shadow-xl">
+      <div className="text-center max-w-2xl p-1 bg-white rounded-2xl shadow-xl">
 
         {/* Título */}
-        <h1 className="text-4xl font-bold mb-4 text-blue-700">
+        <h1 className="text-4xl font-bold mb-4 text-blue-900">
           Visibilidad de Estacionamientos en la Ciudad de Loja
         </h1>
 

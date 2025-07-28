@@ -48,13 +48,11 @@ function UserMenu() {
     {
       component: (
         <>
-          <Avatar theme="xsmall" name="John Smith" colorIndex={5} className="mr-s" /> John Smith
+          
         </>
       ),
       children: [
-        { text: 'View Profile', disabled: true, action: () => console.log('View Profile') },
-        { text: 'Manage Settings', disabled: true, action: () => console.log('Manage Settings') },
-        { text: 'Logout', disabled: true, action: () => console.log('Logout') },
+        
       ],
     },
   ];
